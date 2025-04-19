@@ -82,7 +82,7 @@ function Modal({ children, disabled, show, handleReset }) {
   function closeModal() {
     if (!disabled) {
       if (handleReset) handleReset();
-      setModal({ type: null, data: null });
+      setModal('');
       enableBodyScroll();
     }
   }

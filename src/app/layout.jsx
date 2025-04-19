@@ -9,7 +9,7 @@ export const metadata = {
 function RootLayout({ children }) {
   return (
     <html lang="en">
-      <body>
+      <body className="mx-auto w-full max-w-[1024px] p-4">
         <ModalContextProvider>{children}</ModalContextProvider>
       </body>
     </html>

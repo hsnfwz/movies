@@ -29,7 +29,7 @@ function useMovieSearch() {
 
   async function getMoviesOnTitleChange() {
     try {
-      const response = await fetch(`/search/api?title=${title}&page=1`);
+      const response = await fetch(`/api/search?title=${title}&page=1`);
       const data = await response.json();
       setMovies(data.movies);
       if (page > 1) setPage(1);
@@ -41,7 +41,7 @@ function useMovieSearch() {
 
   async function getMoviesOnPageChange() {
     try {
-      const response = await fetch(`/search/api?title=${title}&page=${page}`);
+      const response = await fetch(`/api/search?title=${title}&page=${page}`);
       const data = await response.json();
       const _movies = [...movies, ...data.movies];
       setMovies(_movies);

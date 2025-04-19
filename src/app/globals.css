@@ -12,6 +12,15 @@ h1 {
   font-size: var(--text-2xl);
 }
 
+.app_hide-scrollbar::-webkit-scrollbar {
+  display: none; /* Hide scrollbar for Chrome, Safari and Opera */
+}
+
+.app_hide-scrollbar {
+  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none; /* Firefox */
+}
+
 @theme {
   --font-limelight: 'Limelight';
   --font-montserrat: 'Montserrat';

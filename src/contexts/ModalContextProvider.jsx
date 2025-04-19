@@ -1,10 +1,10 @@
 'use client';
 import { createContext, useState } from 'react';
 
-const ModalContext = createContext({ type: null, data: null });
+const ModalContext = createContext('');
 
 function ModalContextProvider({ children }) {
-  const [modal, setModal] = useState({ type: null, data: null });
+  const [modal, setModal] = useState('');
 
   return (
     <ModalContext.Provider
