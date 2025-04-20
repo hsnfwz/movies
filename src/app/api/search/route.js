@@ -7,14 +7,10 @@ export async function GET(request) {
   if (!title || title.trim().length === 0 || !page || page === 0)
     return Response.json({ error: 'Please provide title and page.' });
 
-  try {
-    const response = await fetch(
-      `http://www.omdbapi.com/?s=${title.trim()}*&page=${page}&type=movie&apikey=${process.env.OMDB_API_KEY}`
-    );
-    const { Search: movies } = await response.json();
+  const response = await fetch(
+    `http://www.omdbapi.com/?s=${title.trim()}*&page=${page}&type=movie&apikey=${process.env.OMDB_API_KEY}`
+  );
+  const { Search: movies } = await response.json();
 
-    return Response.json({ movies: movies || [] });
-  } catch (error) {
-    return Response.json({ error });
-  }
+  return Response.json({ movies: movies || [] });
 }

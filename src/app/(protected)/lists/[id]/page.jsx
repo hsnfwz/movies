@@ -1,89 +1,155 @@
 'use client';
 import { useEffect, useState, useRef, useContext } from 'react';
 import { useParams } from 'next/navigation';
-import { Plus } from 'lucide-react';
+import { Pen } from 'lucide-react';
 import { ModalContext } from '@/contexts/ModalContextProvider';
-import ScrollXGrid from '@/components/ScrollXGrid';
-import ScrollXCard from '@/components/ScrollXCard';
+import { DataContext } from '@/contexts/DataContextProvider';
+// import ScrollXGrid from '@/components/ScrollXGrid';
+// import ScrollXCard from '@/components/ScrollXCard';
 import ScrollYGrid from '@/components/ScrollYGrid';
 import ScrollYCard from '@/components/ScrollYCard';
-import AddEditModal from '@/components/AddEditModal';
 
 function List() {
   const { id } = useParams();
   const { modal, setModal } = useContext(ModalContext);
-
-  const [list, setList] = useState(null);
-  const moviesRef = useRef([]);
-  const usersRef = useRef([]);
+  const {
+    lists,
+    setLists,
+    movies,
+    setMovies,
+    ratings,
+    setRatings,
+    fetchingLists,
+  } = useContext(DataContext);
   const [fetchingData, setFetchingData] = useState(true);
-
-  const [scrolling, setScrolling] = useState(false);
-  const [firstIntersected, setFirstIntersected] = useState(false);
-  const [lastIntersected, setLastIntersected] = useState(false);
-  const [activeMovie, setActiveMovie] = useState(null);
-
-  const [scrollView, setScrollView] = useState('');
-  const scrollRef = useRef('');
-
   const [filteredMovies, setFilteredMovies] = useState([]);
-  const [filteredUsers, setFilteredUsers] = useState([]);
-  const [isSafari, setIsSafari] = useState(null);
 
-  useEffect(() => {
-    function getScrollView() {
-      if (isSafari === null) {
-        let safariAgent = window.navigator.userAgent.indexOf('Safari') > -1;
-        let chromeAgent = window.navigator.userAgent.indexOf('Chrome') > -1;
-        if (chromeAgent && safariAgent) safariAgent = false;
-        setIsSafari(safariAgent);
+  // const [scrolling, setScrolling] = useState(false);
+  // const [firstIntersected, setFirstIntersected] = useState(false);
+  // const [lastIntersected, setLastIntersected] = useState(false);
+  // const [activeMovie, setActiveMovie] = useState(null);
+
+  // const [scrollView, setScrollView] = useState('');
+  // const scrollRef = useRef('');
+
+  // const [filteredUsers, setFilteredUsers] = useState([]);
+  // const [isSafari, setIsSafari] = useState(null);
+
+  const searchTimerRef = useRef();
+  const [title, setTitle] = useState('');
+
+  function handleSearch(event) {
+    const _title = event.currentTarget.value;
+    setTitle(_title);
+
+    clearTimeout(searchTimerRef.current);
+    searchTimerRef.current = setTimeout(() => {
+      if (_title.length === 0) {
+        const _filteredMovies = Object.values(movies[id]).filter(
+          (listMovie) => listMovie.list_id == id
+        );
+        setFilteredMovies(_filteredMovies);
+      } else {
+        const _filteredMovies = Object.values(movies[id]).filter(
+          (movie) =>
+            movie.list_id == id &&
+            movie.title.toLowerCase().includes(_title.trim().toLowerCase())
+        );
+        setFilteredMovies(_filteredMovies);
       }
-
-      if (window.innerWidth <= 512 && scrollRef.current !== 'X') {
-        scrollRef.current = 'X';
-        setScrollView('X');
-      } else if (window.innerWidth > 512 && scrollRef.current !== 'Y') {
-        scrollRef.current = 'Y';
-        setScrollView('Y');
-      }
-    }
-
-    getScrollView();
-
-    window.addEventListener('resize', getScrollView);
-
-    return () => window.removeEventListener('resize', getScrollView);
-  }, []);
+    }, 1000);
+  }
 
   useEffect(() => {
     async function fetchData() {
-      const response = await fetch(`/api/lists/${id}`);
-      const { list, movies, error } = await response.json();
+      if (!fetchingLists) {
+        if (!lists[id] || !movies[id] || !ratings[id]) {
+          const response = await fetch(`/api/lists/${id}`);
+          const { list, listMovies, listRatings, error } =
+            await response.json();
 
-      if (error) console.log(error);
+          if (error) {
+            setFetchingData(false);
+            return console.log(error);
+          }
 
-      setList(list);
-      setFilteredMovies(movies);
-      moviesRef.current = movies;
+          const _listMovies = { [id]: {} };
+          listMovies.forEach((movie) => {
+            _listMovies[id][movie.movie_id] = movie;
+          });
+
+          listRatings.forEach((rating) => (ratings[rating.movie_id] = rating));
+
+          const _filteredMovies = listMovies.filter(
+            (listMovie) => listMovie.list_id == id
+          );
+          setFilteredMovies(_filteredMovies);
+
+          setMovies({ ...movies, ..._listMovies });
+          setRatings({ ...ratings, ...listRatings });
+          setLists({ ...lists, [id]: list });
+        } else {
+          const _filteredMovies = Object.values(movies[id]).filter(
+            (listMovie) => listMovie.list_id == id
+          );
+          setFilteredMovies(_filteredMovies);
+        }
+      }
       setFetchingData(false);
     }
 
     fetchData();
-  }, []);
+  }, [fetchingLists]);
+
+  // useEffect(() => {
+  //   function getScrollView() {
+  //     if (isSafari === null) {
+  //       let safariAgent = window.navigator.userAgent.indexOf('Safari') > -1;
+  //       let chromeAgent = window.navigator.userAgent.indexOf('Chrome') > -1;
+  //       if (chromeAgent && safariAgent) safariAgent = false;
+  //       setIsSafari(safariAgent);
+  //     }
+
+  //     if (window.innerWidth <= 512 && scrollRef.current !== 'X') {
+  //       scrollRef.current = 'X';
+  //       setScrollView('X');
+  //     } else if (window.innerWidth > 512 && scrollRef.current !== 'Y') {
+  //       scrollRef.current = 'Y';
+  //       setScrollView('Y');
+  //     }
+  //   }
+
+  //   getScrollView();
+
+  //   window.addEventListener('resize', getScrollView);
+
+  //   return () => window.removeEventListener('resize', getScrollView);
+  // }, []);
 
   if (fetchingData) {
     return <span>Loading...</span>;
   }
 
-  if (!fetchingData && !list) {
+  if (!fetchingData && lists && !lists[id]) {
     return <span>No Content</span>;
   }
 
-  if (!fetchingData && list) {
+  if (!fetchingData && lists && lists[id]) {
     return (
       <div className="flex w-full flex-col gap-4">
-        <h1>{list.name}</h1>
-        {!isSafari && scrollView === 'X' && (
+        <div className="flex w-full items-center gap-4">
+          <h1>{lists[id].name}</h1>
+          <button
+            type="button"
+            onMouseDown={(event) => event.preventDefault()}
+            onClick={() => setModal({ action: 'EDIT_LIST' })}
+            className="ml-auto flex h-[48px] w-[48px] cursor-pointer items-center justify-center rounded-full border-2 border-sky-500 bg-sky-500 text-white transition-all duration-200 hover:border-sky-700 focus:border-black focus:ring-0 focus:outline-0"
+          >
+            <Pen />
+          </button>
+        </div>
+
+        {/* {!isSafari && scrollView === 'X' && (
           <ScrollXGrid
             moviesRef={moviesRef}
             filteredMovies={filteredMovies}
@@ -119,23 +185,20 @@ function List() {
               <ScrollYCard key={index} movie={movie} />
             ))}
           </ScrollYGrid>
-        )}
-        <button
-          type="button"
-          onMouseDown={(event) => event.preventDefault()}
-          onClick={() => setModal('EDIT_LIST')}
-          className="flex h-[48px] w-[48px] cursor-pointer items-center justify-center rounded-full border-2 border-sky-500 bg-sky-500 text-white transition-all duration-200 hover:border-sky-700 focus:border-black focus:ring-0 focus:outline-0"
-        >
-          <Plus />
-        </button>
-        <AddEditModal
-          show={modal === 'EDIT_LIST'}
-          handleSubmit={() => console.log('submit')}
-          disabled={false}
-          list={list}
-          moviesRef={moviesRef}
-          usersRef={usersRef}
+        )} */}
+
+        <input
+          type="text"
+          value={title}
+          placeholder="Search Movies in List"
+          onInput={handleSearch}
+          className="flex w-full rounded-full border-2 border-neutral-100 bg-neutral-100 px-4 py-2 text-black placeholder-neutral-400 transition-all duration-200 hover:border-neutral-200 focus:border-black focus:bg-white focus:ring-0 focus:outline-0"
         />
+        <ScrollYGrid>
+          {filteredMovies.map((movie, index) => (
+            <ScrollYCard key={index} movie={movie} />
+          ))}
+        </ScrollYGrid>
       </div>
     );
   }

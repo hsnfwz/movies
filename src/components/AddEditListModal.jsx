@@ -5,7 +5,7 @@ import useUserSearch from '@/hooks/useUserSearch';
 import Modal from '@/components/Modal';
 import { ModalContext } from '@/contexts/ModalContextProvider';
 
-function AddEditModal({
+function AddEditListModal({
   handleSubmit,
   show,
   disabled,
@@ -115,6 +115,7 @@ function AddEditModal({
                     imageElement.src = `https://placehold.co/200/000000/FFFFFF/svg?text=${movie.Title}&font=montserrat/`;
                   }}
                 />
+
                 {movie.Title}
               </button>
             ))}
@@ -144,7 +145,7 @@ function AddEditModal({
             setListMovies({});
             setTitle('');
             setPage(1);
-            setModal('');
+            setModal({ action: '', data: null });
           }}
           className="cursor-pointer rounded-full border-2 border-neutral-100 bg-neutral-100 px-4 py-2 text-black transition-all duration-200 hover:border-neutral-200 focus:border-black focus:ring-0 focus:outline-0 disabled:pointer-events-none disabled:opacity-50"
         >
@@ -175,4 +176,4 @@ function AddEditModal({
   );
 }
 
-export default AddEditModal;
+export default AddEditListModal;

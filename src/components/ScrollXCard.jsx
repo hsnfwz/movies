@@ -42,17 +42,17 @@ function ScrollXCard({
 
   return (
     <div
-      id={`movie-${movie.id}`}
+      id={`movie-${movie.movie_id}`}
       ref={elementRef}
       className={`flex w-[256px] snap-center flex-col gap-2 ${!scrolling && elementIntersected ? 'opacity-100' : 'opacity-50'} transition-all duration-200`}
     >
       <img
-        id={`img-${movie.id}`}
+        id={`img-${movie.movie_id}`}
         src={movie.poster}
         alt={movie.title}
         className={`w-full rounded-3xl ${loadingImage ? 'hidden' : 'visible'}`}
         onError={() => {
-          const imageElement = document.getElementById(`img-${movie.id}`);
+          const imageElement = document.getElementById(`img-${movie.movie_id}`);
           imageElement.onerror = null;
           imageElement.src = `https://placehold.co/200/000000/FFFFFF/svg?text=${movie.title}&font=montserrat/`;
         }}

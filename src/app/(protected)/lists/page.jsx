@@ -3,19 +3,15 @@ import { useContext, useEffect, useState, useRef } from 'react';
 import Link from 'next/link';
 import { Plus } from 'lucide-react';
 import { ModalContext } from '@/contexts/ModalContextProvider';
-import AddEditModal from '@/components/AddEditModal';
+import { DataContext } from '@/contexts/DataContextProvider';
 
 function Home() {
   const { modal, setModal } = useContext(ModalContext);
-
-  const listsRef = useRef([]);
-  const [filteredLists, setFilteredLists] = useState([]);
-  const [fetchingLists, setFetchingLists] = useState(true);
-
+  const { lists, fetchingLists } = useContext(DataContext);
   const searchTimerRef = useRef();
   const [name, setName] = useState('');
 
-  const [submitting, setSubmitting] = useState(false);
+  const [filteredLists, setFilteredLists] = useState([]);
 
   function handleSearch(event) {
     const _name = event.currentTarget.value;
@@ -24,9 +20,9 @@ function Home() {
     clearTimeout(searchTimerRef.current);
     searchTimerRef.current = setTimeout(() => {
       if (_name.length === 0) {
-        setFilteredLists([...listsRef.current]);
+        setFilteredLists(Object.values(lists));
       } else {
-        const _filteredLists = listsRef.current.filter((list) =>
+        const _filteredLists = Object.values(lists).filter((list) =>
           list.name.toLowerCase().includes(_name.trim().toLowerCase())
         );
         setFilteredLists(_filteredLists);
@@ -35,44 +31,10 @@ function Home() {
   }
 
   useEffect(() => {
-    async function fetchData() {
-      const response = await fetch('/api/lists');
-      const { lists, error } = await response.json();
-      if (error) console.log(error);
-      setFilteredLists(lists);
-      listsRef.current = lists;
-      setFetchingLists(false);
+    if (!fetchingLists) {
+      setFilteredLists(Object.values(lists));
     }
-
-    fetchData();
-  }, []);
-
-  async function handleSubmit(listName, listUsers, listMovies) {
-    setSubmitting(true);
-
-    const response = await fetch('/api/lists', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        listName,
-        listUsers,
-        listMovies,
-      }),
-    });
-
-    const { list, error } = await response.json();
-
-    if (error) console.log(error);
-
-    const _filteredLists = [...filteredLists];
-    _filteredLists.push(list);
-    setFilteredLists(_filteredLists);
-    listsRef.current.push(list);
-    setSubmitting(false);
-    setModal('');
-  }
+  }, [fetchingLists]);
 
   if (fetchingLists) {
     return <span>Loading...</span>;
@@ -88,13 +50,13 @@ function Home() {
         >
           H
         </Link> */}
-        {filteredLists.length === 0 && (
+        {Object.keys(lists).length === 0 && (
           <>
             <h1>You do not have any lists yet</h1>
             <p>Let's get you started by creating your first list!</p>
           </>
         )}
-        {filteredLists.length > 0 && (
+        {Object.keys(lists).length > 0 && (
           <>
             <h1>Your Lists</h1>
             <input
@@ -118,16 +80,11 @@ function Home() {
         <button
           type="button"
           onMouseDown={(event) => event.preventDefault()}
-          onClick={() => setModal('ADD_LIST')}
+          onClick={() => setModal({ action: 'ADD_LIST' })}
           className="flex h-[48px] w-[48px] cursor-pointer items-center justify-center rounded-full border-2 border-sky-500 bg-sky-500 text-white transition-all duration-200 hover:border-sky-700 focus:border-black focus:ring-0 focus:outline-0"
         >
           <Plus />
         </button>
-        <AddEditModal
-          handleSubmit={handleSubmit}
-          disabled={submitting}
-          show={modal === 'ADD_LIST'}
-        />
       </div>
     );
   }

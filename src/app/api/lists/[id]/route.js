@@ -12,16 +12,30 @@ export async function GET(request, { params }) {
     connectionString: process.env.NEON_DATABASE_URL,
   });
 
-  const listValues = [id];
-  const listSql = 'select * from lists where id=$1';
+  const listValues = [user.sub, id];
+  const listSql = 'select * from lists where auth0_user_id=$1 and id=$2';
   const { rows: listRows } = await pool.query(listSql, listValues);
 
-  if (!listRows[0]) return Response.json({ error: 'List not found.' });
+  if (!listRows[0])
+    return Response.json({
+      list: null,
+      movies: [],
+      ratings: [],
+      error: 'List not found.',
+    });
 
   const moviesValues = [id];
   const moviesSql =
     'select * from movies inner join list_movies on movies.id=list_movies.movie_id where list_movies.list_id=$1';
   const { rows: moviesRows } = await pool.query(moviesSql, moviesValues);
 
-  return Response.json({ list: listRows[0], movies: moviesRows });
+  const ratingsValues = [moviesRows.map((movieRow) => movieRow.movie_id)];
+  const ratingsSql = 'select * from ratings where movie_id=any($1)';
+  const { rows: ratingsRows } = await pool.query(ratingsSql, ratingsValues);
+
+  return Response.json({
+    list: listRows[0],
+    listMovies: moviesRows,
+    listRatings: ratingsRows,
+  });
 }
