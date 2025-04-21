@@ -60,7 +60,7 @@ function ScrollYCard({ movie }) {
             <button
               type="button"
               onMouseDown={(event) => event.preventDefault()}
-              onClick={() => setModal({ action: 'ADD_RATING', data: movie })}
+              onClick={() => setModal({ action: 'ADD_RATING', data: { movie, rating: ratings[movie.movie_id] } })}
               className={`flex h-[48px] w-[48px] cursor-pointer items-center justify-center self-end rounded-full border-2 border-amber-500 transition-all duration-200 hover:border-amber-700 focus:border-black focus:ring-0 focus:outline-0 ${ratings[movie.movie_id] ? 'bg-amber-500' : 'bg-white'}`}
             >
               <Star

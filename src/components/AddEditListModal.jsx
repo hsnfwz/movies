@@ -9,9 +9,6 @@ function AddEditListModal({
   handleSubmit,
   show,
   disabled,
-  list,
-  moviesRef,
-  usersRef,
 }) {
   const { modal, setModal } = useContext(ModalContext);
   const [title, setTitle, page, setPage, movies, fetchingMovies] =

@@ -1,4 +1,4 @@
-import { useState, useContext, useRef } from 'react';
+import { useState, useContext, useRef, useEffect } from 'react';
 import { ModalContext } from '@/contexts/ModalContextProvider';
 import { DataContext } from '@/contexts/DataContextProvider';
 import Modal from './Modal';
@@ -6,26 +6,32 @@ import Modal from './Modal';
 function AddEditRatingModal({ handleSubmit, show, disabled }) {
   const { modal, setModal } = useContext(ModalContext);
   const { movies } = useContext(DataContext);
-  const [score, setScore] = useState(10);
+  const [score, setScore] = useState(null);
 
   const numbers = Array.from({ length: 101 }, (_, i) =>
     parseFloat((i * 0.1).toFixed(1))
   ).reverse();
 
+  useEffect(() => {
+    if (modal.data && modal.data.rating) {
+      setScore(+modal.data.rating.score);
+    }
+  }, [modal]);
+
   return (
     <Modal
       show={show}
       handleReset={() => {
-        setScore(10);
+        setScore(null);
       }}
       disabled={disabled}
     >
       <h1 className="text-center">
-        {modal === 'ADD_RATING' ? 'Add' : 'Edit'} Rating
+        {modal.data && modal.data.rating ? 'Edit Rating' : 'Add Rating'}
       </h1>
       {modal.data && (
         <h2 className="text-center">
-          {movies[modal.data.list_id][modal.data.movie_id].title}
+          {movies[modal.data.movie.list_id][modal.data.movie.movie_id].title}
         </h2>
       )}
       <div className="flex h-[256px] w-full flex-col gap-4 overflow-y-scroll">
@@ -50,7 +56,7 @@ function AddEditRatingModal({ handleSubmit, show, disabled }) {
           disabled={disabled}
           onMouseDown={(event) => event.preventDefault()}
           onClick={() => {
-            setScore(10);
+            setScore(null);
             setModal({ action: '', data: null });
           }}
           className="cursor-pointer rounded-full border-2 border-neutral-100 bg-neutral-100 px-4 py-2 text-black transition-all duration-200 hover:border-neutral-200 focus:border-black focus:ring-0 focus:outline-0 disabled:pointer-events-none disabled:opacity-50"
@@ -59,11 +65,11 @@ function AddEditRatingModal({ handleSubmit, show, disabled }) {
         </button>
         <button
           type="button"
-          disabled={disabled}
+          disabled={disabled || !score}
           onMouseDown={(event) => event.preventDefault()}
           onClick={async () => {
             await handleSubmit(score);
-            setScore(10);
+            setScore(null);
           }}
           className="cursor-pointer rounded-full border-2 border-sky-500 bg-sky-500 px-4 py-2 text-white transition-all duration-200 hover:border-sky-700 focus:border-black focus:ring-0 focus:outline-0 disabled:pointer-events-none disabled:opacity-50"
         >

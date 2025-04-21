@@ -65,6 +65,32 @@ function ProtectedLayout({ children }) {
     setModal({ action: '', data: null });
   }
 
+  async function handleEditList(listName, listUsers, listMovies) {
+    // setSubmitting(true);
+
+    // const response = await fetch('/api/lists', {
+    //   method: 'POST',
+    //   headers: {
+    //     'Content-Type': 'application/json',
+    //   },
+    //   body: JSON.stringify({
+    //     listName,
+    //     listUsers,
+    //     listMovies,
+    //   }),
+    // });
+
+    // const { list, error } = await response.json();
+
+    // if (error) return console.log(error);
+
+    // const _lists = { ...lists, [list.id]: list };
+    // setLists(_lists);
+
+    // setSubmitting(false);
+    // setModal({ action: '', data: null });
+  }
+
   async function handleAddRating(score) {
     setSubmitting(true);
 
@@ -75,13 +101,36 @@ function ProtectedLayout({ children }) {
       },
       body: JSON.stringify({
         score,
-        movieId: modal.data.movie_id,
+        movieId: modal.data.movie.movie_id,
       }),
     });
 
     const { rating, error } = await response.json();
 
-    console.log(rating);
+    if (error) return console.log(error);
+
+    const _ratings = { ...ratings, [rating.movie_id]: rating };
+    setRatings(_ratings);
+
+    setSubmitting(false);
+    setModal({ action: '', data: null });
+  }
+
+  async function handleEditRating(score) {
+    setSubmitting(true);
+
+    const response = await fetch('/api/ratings', {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        score,
+        ratingId: modal.data.rating.id,
+      }),
+    });
+
+    const { rating, error } = await response.json();
 
     if (error) return console.log(error);
 
@@ -104,14 +153,26 @@ function ProtectedLayout({ children }) {
     return (
       <>
         <AddEditListModal
-          handleSubmit={handleAddList}
+          handleSubmit={async (listName, listUsers, listMovies) => {
+            if (modal.action === 'ADD_LIST') {
+              await handleAddList(listName, listUsers, listMovies);
+            } else {
+              await handleEditList(listName, listUsers, listMovies);
+            }
+          }}
           disabled={submitting}
-          show={modal.action === 'ADD_LIST'}
+          show={modal.action === 'ADD_LIST' || modal.action === 'EDIT_LIST'}
         />
         <AddEditRatingModal
-          handleSubmit={handleAddRating}
+          handleSubmit={async (score) => {
+            if (modal.action === 'ADD_RATING') {
+              await handleAddRating(score);
+            } else {
+              await handleEditRating(score);
+            }
+          }}
           disabled={submitting}
-          show={modal.action === 'ADD_RATING'}
+          show={modal.action === 'ADD_RATING' || modal.action === 'EDIT_RATING'}
         />
         {children}
       </>

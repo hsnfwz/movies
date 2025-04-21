@@ -34,7 +34,7 @@ function Home() {
     if (!fetchingLists) {
       setFilteredLists(Object.values(lists));
     }
-  }, [fetchingLists]);
+  }, [fetchingLists, lists]);
 
   if (fetchingLists) {
     return <span>Loading...</span>;
@@ -42,14 +42,7 @@ function Home() {
 
   if (!fetchingLists) {
     return (
-      <div className="flex h-screen w-full flex-col items-center justify-center gap-4">
-        {/* <Link
-          onMouseDown={(event) => event.preventDefault()}
-          className="absolute top-4 right-4 flex h-[48px] w-[48px] items-center justify-center rounded-full border-2 border-neutral-100 bg-neutral-100 text-black transition-all duration-200 hover:border-neutral-200 focus:border-black focus:ring-0 focus:outline-0"
-          href="/"
-        >
-          H
-        </Link> */}
+      <div className="flex min-h-screen w-full flex-col items-center justify-center gap-4">
         {Object.keys(lists).length === 0 && (
           <>
             <h1>You do not have any lists yet</h1>

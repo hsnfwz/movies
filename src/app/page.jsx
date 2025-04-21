@@ -38,12 +38,9 @@ function Welcome() {
 
 export default Welcome;
 
-// skeleton for each search image - need a searchimage card component to make this work
-// TODO: edit rating
+// TODO: skeleton for each search image - need a searchimage card component to make this work
 // TODO: edit list
 // TODO: search and add users to list
-// TODO: scroll buttons don't work on desktop-mobile view but works on mobile phone views
 // TODO: alphabetical order and scroll travel
-// TODO: fix smooth scroll not working
 // TODO: add vercel url links to auth0 app dashboard when ready to deploy
 // TODO: limit number of movies and users that can be added at a given time to avoid reaching vercel function time limits (ex: 5 per submit)

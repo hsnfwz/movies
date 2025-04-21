@@ -4,8 +4,6 @@ import { useParams } from 'next/navigation';
 import { Pen } from 'lucide-react';
 import { ModalContext } from '@/contexts/ModalContextProvider';
 import { DataContext } from '@/contexts/DataContextProvider';
-// import ScrollXGrid from '@/components/ScrollXGrid';
-// import ScrollXCard from '@/components/ScrollXCard';
 import ScrollYGrid from '@/components/ScrollYGrid';
 import ScrollYCard from '@/components/ScrollYCard';
 
@@ -23,17 +21,6 @@ function List() {
   } = useContext(DataContext);
   const [fetchingData, setFetchingData] = useState(true);
   const [filteredMovies, setFilteredMovies] = useState([]);
-
-  // const [scrolling, setScrolling] = useState(false);
-  // const [firstIntersected, setFirstIntersected] = useState(false);
-  // const [lastIntersected, setLastIntersected] = useState(false);
-  // const [activeMovie, setActiveMovie] = useState(null);
-
-  // const [scrollView, setScrollView] = useState('');
-  // const scrollRef = useRef('');
-
-  // const [filteredUsers, setFilteredUsers] = useState([]);
-  // const [isSafari, setIsSafari] = useState(null);
 
   const searchTimerRef = useRef();
   const [title, setTitle] = useState('');
@@ -101,31 +88,6 @@ function List() {
     fetchData();
   }, [fetchingLists]);
 
-  // useEffect(() => {
-  //   function getScrollView() {
-  //     if (isSafari === null) {
-  //       let safariAgent = window.navigator.userAgent.indexOf('Safari') > -1;
-  //       let chromeAgent = window.navigator.userAgent.indexOf('Chrome') > -1;
-  //       if (chromeAgent && safariAgent) safariAgent = false;
-  //       setIsSafari(safariAgent);
-  //     }
-
-  //     if (window.innerWidth <= 512 && scrollRef.current !== 'X') {
-  //       scrollRef.current = 'X';
-  //       setScrollView('X');
-  //     } else if (window.innerWidth > 512 && scrollRef.current !== 'Y') {
-  //       scrollRef.current = 'Y';
-  //       setScrollView('Y');
-  //     }
-  //   }
-
-  //   getScrollView();
-
-  //   window.addEventListener('resize', getScrollView);
-
-  //   return () => window.removeEventListener('resize', getScrollView);
-  // }, []);
-
   if (fetchingData) {
     return <span>Loading...</span>;
   }
@@ -148,45 +110,6 @@ function List() {
             <Pen />
           </button>
         </div>
-
-        {/* {!isSafari && scrollView === 'X' && (
-          <ScrollXGrid
-            moviesRef={moviesRef}
-            filteredMovies={filteredMovies}
-            setFilteredMovies={setFilteredMovies}
-            scrolling={scrolling}
-            setScrolling={setScrolling}
-            firstIntersected={firstIntersected}
-            lastIntersected={lastIntersected}
-            activeMovie={activeMovie}
-          >
-            {filteredMovies.map((movie, index) => (
-              <ScrollXCard
-                key={index}
-                movie={movie}
-                moviesRef={moviesRef}
-                scrolling={scrolling}
-                lastIntersected={lastIntersected}
-                setLastIntersected={setLastIntersected}
-                firstIntersected={firstIntersected}
-                setFirstIntersected={setFirstIntersected}
-                setActiveMovie={setActiveMovie}
-              />
-            ))}
-          </ScrollXGrid>
-        )}
-        {(isSafari || scrollView === 'Y') && (
-          <ScrollYGrid
-            moviesRef={moviesRef}
-            filteredMovies={filteredMovies}
-            setFilteredMovies={setFilteredMovies}
-          >
-            {filteredMovies.map((movie, index) => (
-              <ScrollYCard key={index} movie={movie} />
-            ))}
-          </ScrollYGrid>
-        )} */}
-
         <input
           type="text"
           value={title}

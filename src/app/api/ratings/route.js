@@ -20,3 +20,23 @@ export async function POST(request) {
 
   return Response.json({ rating: rows[0] });
 }
+
+export async function PUT(request) {
+  const { ratingId, score } = await request.json();
+  const { user } = await auth0.getSession();
+
+  if (!user) return Response.json({ error: 'Authentication required.' });
+  if (score === null || score === undefined || !ratingId)
+    return Response.json({ error: 'Score and Rating ID required.' });
+
+  const pool = new pkg.Pool({
+    connectionString: process.env.NEON_DATABASE_URL,
+  });
+
+  const values = [score, ratingId];
+  const sql =
+    'update ratings set (score) = ($1) where (id) = ($2) returning *';
+  const { rows } = await pool.query(sql, values);
+
+  return Response.json({ rating: rows[0] });
+}
