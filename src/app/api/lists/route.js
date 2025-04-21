@@ -93,8 +93,7 @@ export async function PUT(request) {
   });
 
   const values = [listName, listId];
-  const sql =
-    'update lists set name = ($1) where (id) = ($2) returning *';
+  const sql = 'update lists set name = ($1) where (id) = ($2) returning *';
   const { rows } = await pool.query(sql, values);
 
   return Response.json({ list: rows[0] });

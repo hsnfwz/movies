@@ -34,8 +34,7 @@ export async function PUT(request) {
   });
 
   const values = [score, ratingId];
-  const sql =
-    'update ratings set score = ($1) where (id) = ($2) returning *';
+  const sql = 'update ratings set score = ($1) where (id) = ($2) returning *';
   const { rows } = await pool.query(sql, values);
 
   return Response.json({ rating: rows[0] });

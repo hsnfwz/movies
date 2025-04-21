@@ -4,12 +4,9 @@ import useMovieSearch from '@/hooks/useMovieSearch';
 import useUserSearch from '@/hooks/useUserSearch';
 import Modal from '@/components/Modal';
 import { ModalContext } from '@/contexts/ModalContextProvider';
+import SearchCard from './SearchCard';
 
-function AddEditListModal({
-  handleSubmit,
-  show,
-  disabled,
-}) {
+function AddEditListModal({ handleSubmit, show, disabled }) {
   const { modal, setModal } = useContext(ModalContext);
   const [title, setTitle, page, setPage, movies, fetchingMovies] =
     useMovieSearch();
@@ -86,41 +83,9 @@ function AddEditListModal({
           </div>
         )}
         {movies.length > 0 && (
-          <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 md:grid-cols-4">
+          <div className="grid grid-cols-2 gap-2 md:grid-cols-3">
             {movies.map((movie, index) => (
-              <button
-                key={index}
-                type="button"
-                onMouseDown={(event) => event.preventDefault()}
-                onClick={() => {
-                  if (!listMovies[movie.imdbID]) {
-                    const _listMovies = { ...listMovies };
-                    _listMovies[movie.imdbID] = {
-                      title: movie.Title,
-                      poster: movie.Poster,
-                      imdb_id: movie.imdbID,
-                    };
-                    setListMovies(_listMovies);
-                  }
-                }}
-                className="group flex cursor-pointer flex-col gap-2 focus:ring-0 focus:outline-0"
-              >
-                <img
-                  id={`img-${index}`}
-                  src={movie.Poster}
-                  alt={movie.Title}
-                  className={`w-full rounded-3xl border-2 p-2 transition-all duration-200 group-hover:border-sky-500 group-focus:border-black group-focus:ring-0 group-focus:outline-0 ${listMovies[movie.imdbID] ? 'border-dotted border-sky-500 bg-sky-300' : 'border-transparent'}`}
-                  onError={() => {
-                    const imageElement = document.getElementById(
-                      `img-${index}`
-                    );
-                    imageElement.onerror = null;
-                    imageElement.src = `https://placehold.co/200/000000/FFFFFF/svg?text=${movie.Title}&font=montserrat/`;
-                  }}
-                />
-
-                {movie.Title}
-              </button>
+              <SearchCard key={index} movie={movie} listMovies={listMovies} setListMovies={setListMovies} />
             ))}
           </div>
         )}
@@ -158,8 +123,11 @@ function AddEditListModal({
           type="button"
           disabled={
             listName.length === 0 ||
-            (modal.action === 'ADD_LIST' && Object.values(listMovies).length === 0) ||
-            (modal.data && modal.data.list && listName === modal.data.list.name) ||
+            (modal.action === 'ADD_LIST' &&
+              Object.values(listMovies).length === 0) ||
+            (modal.data &&
+              modal.data.list &&
+              listName === modal.data.list.name) ||
             disabled
           }
           onMouseDown={(event) => event.preventDefault()}

@@ -38,7 +38,6 @@ function Welcome() {
 
 export default Welcome;
 
-// TODO: skeleton for each search image - need a searchimage card component to make this work
 // TODO: user metadata (username) to use for search
 // TODO: search and add users to list
 // TODO: add vercel url links to auth0 app dashboard when ready to deploy
