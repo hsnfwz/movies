@@ -132,7 +132,7 @@ function AddEditListModal({ handleSubmit, show, disabled }) {
             listName.length === 0 ||
             (modal.action === 'ADD_LIST' &&
               Object.values(listMovies).length === 0) ||
-            (modal.data.list &&
+            (modal.data && modal.data.list &&
               modal.data.list.name === listName &&
               Object.values(listMovies).length === 0) ||
             disabled
