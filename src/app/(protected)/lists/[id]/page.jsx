@@ -104,7 +104,7 @@ function List() {
           <button
             type="button"
             onMouseDown={(event) => event.preventDefault()}
-            onClick={() => setModal({ action: 'EDIT_LIST' })}
+            onClick={() => setModal({ action: 'EDIT_LIST', data: { list: lists[id] } })}
             className="ml-auto flex h-[48px] w-[48px] cursor-pointer items-center justify-center rounded-full border-2 border-sky-500 bg-sky-500 text-white transition-all duration-200 hover:border-sky-700 focus:border-black focus:ring-0 focus:outline-0"
           >
             <Pen />

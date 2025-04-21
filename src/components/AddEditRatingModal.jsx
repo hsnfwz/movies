@@ -29,7 +29,7 @@ function AddEditRatingModal({ handleSubmit, show, disabled }) {
       <h1 className="text-center">
         {modal.data && modal.data.rating ? 'Edit Rating' : 'Add Rating'}
       </h1>
-      {modal.data && (
+      {modal.data && modal.data.movie && (
         <h2 className="text-center">
           {movies[modal.data.movie.list_id][modal.data.movie.movie_id].title}
         </h2>

@@ -79,3 +79,23 @@ export async function POST(request) {
 
   return Response.json({ list: listRows[0] });
 }
+
+export async function PUT(request) {
+  const { listId, listName } = await request.json();
+  const { user } = await auth0.getSession();
+
+  if (!user) return Response.json({ error: 'Authentication required.' });
+  if (!listId || !listName)
+    return Response.json({ error: 'List ID and Name required.' });
+
+  const pool = new pkg.Pool({
+    connectionString: process.env.NEON_DATABASE_URL,
+  });
+
+  const values = [listName, listId];
+  const sql =
+    'update lists set name = ($1) where (id) = ($2) returning *';
+  const { rows } = await pool.query(sql, values);
+
+  return Response.json({ list: rows[0] });
+}

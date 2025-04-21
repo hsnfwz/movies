@@ -39,8 +39,6 @@ function Welcome() {
 export default Welcome;
 
 // TODO: skeleton for each search image - need a searchimage card component to make this work
-// TODO: edit list
+// TODO: user metadata (username) to use for search
 // TODO: search and add users to list
-// TODO: alphabetical order and scroll travel
 // TODO: add vercel url links to auth0 app dashboard when ready to deploy
-// TODO: limit number of movies and users that can be added at a given time to avoid reaching vercel function time limits (ex: 5 per submit)

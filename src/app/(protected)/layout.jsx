@@ -66,29 +66,28 @@ function ProtectedLayout({ children }) {
   }
 
   async function handleEditList(listName, listUsers, listMovies) {
-    // setSubmitting(true);
+    setSubmitting(true);
 
-    // const response = await fetch('/api/lists', {
-    //   method: 'POST',
-    //   headers: {
-    //     'Content-Type': 'application/json',
-    //   },
-    //   body: JSON.stringify({
-    //     listName,
-    //     listUsers,
-    //     listMovies,
-    //   }),
-    // });
+    const response = await fetch('/api/lists', {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        listName,
+        listId: modal.data.list.id,
+      }),
+    });
 
-    // const { list, error } = await response.json();
+    const { list, error } = await response.json();
 
-    // if (error) return console.log(error);
+    if (error) return console.log(error);
 
-    // const _lists = { ...lists, [list.id]: list };
-    // setLists(_lists);
+    const _lists = { ...lists, [list.id]: list };
+    setLists(_lists);
 
-    // setSubmitting(false);
-    // setModal({ action: '', data: null });
+    setSubmitting(false);
+    setModal({ action: '', data: null });
   }
 
   async function handleAddRating(score) {
@@ -156,7 +155,7 @@ function ProtectedLayout({ children }) {
           handleSubmit={async (listName, listUsers, listMovies) => {
             if (modal.action === 'ADD_LIST') {
               await handleAddList(listName, listUsers, listMovies);
-            } else {
+            } else if (modal.action === 'EDIT_LIST') {
               await handleEditList(listName, listUsers, listMovies);
             }
           }}
@@ -167,7 +166,7 @@ function ProtectedLayout({ children }) {
           handleSubmit={async (score) => {
             if (modal.action === 'ADD_RATING') {
               await handleAddRating(score);
-            } else {
+            } else if (modal.action === 'EDIT_RATING') {
               await handleEditRating(score);
             }
           }}

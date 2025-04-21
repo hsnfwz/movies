@@ -1,5 +1,5 @@
 'use client';
-import { useContext, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import useMovieSearch from '@/hooks/useMovieSearch';
 import useUserSearch from '@/hooks/useUserSearch';
 import Modal from '@/components/Modal';
@@ -19,6 +19,12 @@ function AddEditListModal({
   const [listUsers, setListUsers] = useState({});
   const [listMovies, setListMovies] = useState({});
 
+  useEffect(() => {
+    if (modal.data && modal.data.list) {
+      setListName(modal.data.list.name);
+    }
+  }, [modal]);
+
   return (
     <Modal
       show={show}
@@ -32,7 +38,7 @@ function AddEditListModal({
       disabled={disabled}
     >
       <h1 className="text-center">
-        {modal === 'ADD_LIST' ? 'Add' : 'Edit'} List
+        {modal.data && modal.data.list ? 'Edit List' : 'Add List'}
       </h1>
       <div className="flex flex-col gap-2">
         <label>*Name</label>
@@ -152,7 +158,8 @@ function AddEditListModal({
           type="button"
           disabled={
             listName.length === 0 ||
-            Object.values(listMovies).length === 0 ||
+            (modal.action === 'ADD_LIST' && Object.values(listMovies).length === 0) ||
+            (modal.data && modal.data.list && listName === modal.data.list.name) ||
             disabled
           }
           onMouseDown={(event) => event.preventDefault()}
