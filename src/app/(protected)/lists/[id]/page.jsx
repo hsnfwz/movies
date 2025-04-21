@@ -44,7 +44,7 @@ function List() {
         );
         setFilteredMovies(_filteredMovies);
       }
-    }, 1000);
+    }, 500);
   }
 
   useEffect(() => {

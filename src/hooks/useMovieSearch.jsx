@@ -18,7 +18,7 @@ function useMovieSearch() {
     clearTimeout(timerRef.current);
     timerRef.current = setTimeout(() => {
       getMoviesOnTitleChange();
-    }, [1000]);
+    }, [500]);
   }, [title]);
 
   useEffect(() => {

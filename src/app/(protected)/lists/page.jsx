@@ -27,7 +27,7 @@ function Home() {
         );
         setFilteredLists(_filteredLists);
       }
-    }, 1000);
+    }, 500);
   }
 
   useEffect(() => {
