@@ -29,9 +29,12 @@ function ScrollYCard({ movie }) {
         className={`aspect-square w-full animate-pulse rounded-3xl bg-neutral-100 ${loadingImage ? 'visible' : 'hidden'}`}
       ></div>
       {!loadingImage && (
-        <div className="mt-auto flex flex-col gap-4">
-          <h2>{movie.title}</h2>
-          <div className="flex gap-2 self-end">
+        <>
+          <div className="flex flex-col gap-2 rounded-3xl bg-neutral-100 p-4">
+            <h2 className="font-bold">{movie.title}</h2>
+            <p className="text-amber-500"><span className="font-bold">{ratings[movie.movie_id] ? `${ratings[movie.movie_id].score}` : '-'}</span> / 10</p>
+          </div>
+          <div className="mt-auto flex gap-2 self-end">
             <Link
               onMouseDown={(event) => event.preventDefault()}
               className="flex h-[48px] w-[48px] items-center justify-center rounded-full border-2 border-neutral-100 bg-neutral-100 text-black transition-all duration-200 hover:border-neutral-200 focus:border-black focus:ring-0 focus:outline-0"
@@ -76,7 +79,7 @@ function ScrollYCard({ movie }) {
               />
             </button>
           </div>
-        </div>
+        </>
       )}
     </div>
   );
