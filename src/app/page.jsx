@@ -40,4 +40,3 @@ export default Welcome;
 
 // TODO: user metadata (username) to use for search
 // TODO: search and add users to list
-// TODO: add vercel url links to auth0 app dashboard when ready to deploy
