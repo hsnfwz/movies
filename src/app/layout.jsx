@@ -3,8 +3,8 @@ import { DataContextProvider } from '@/contexts/DataContextProvider';
 import './globals.css';
 
 export const metadata = {
-  title: 'Movies',
-  description: 'Create collaborative lists to rate your movies with others.',
+  title: 'FilmFest',
+  description: 'Create collaborative lists to rate movies.',
 };
 
 function RootLayout({ children }) {

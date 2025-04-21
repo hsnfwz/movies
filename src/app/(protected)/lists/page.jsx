@@ -59,6 +59,7 @@ function Home() {
               onInput={handleSearch}
               className="flex w-full rounded-full border-2 border-neutral-100 bg-neutral-100 px-4 py-2 text-black placeholder-neutral-400 transition-all duration-200 hover:border-neutral-200 focus:border-black focus:bg-white focus:ring-0 focus:outline-0"
             />
+            <div className="flex gap-2 flex-wrap w-full">
             {filteredLists.map((list, index) => (
               <Link
                 key={index}
@@ -68,13 +69,14 @@ function Home() {
                 {list.name}
               </Link>
             ))}
+            </div>
           </>
         )}
         <button
           type="button"
           onMouseDown={(event) => event.preventDefault()}
           onClick={() => setModal({ action: 'ADD_LIST' })}
-          className="flex h-[48px] w-[48px] cursor-pointer items-center justify-center rounded-full border-2 border-sky-500 bg-sky-500 text-white transition-all duration-200 hover:border-sky-700 focus:border-black focus:ring-0 focus:outline-0"
+          className="flex h-[48px] w-[48px] cursor-pointer items-center justify-center rounded-full border-2 border-emerald-500 bg-emerald-500 text-white transition-all duration-200 hover:border-emerald-700 focus:border-black focus:ring-0 focus:outline-0"
         >
           <Plus />
         </button>

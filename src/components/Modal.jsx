@@ -103,7 +103,7 @@ function Modal({ children, disabled, show, handleReset }) {
         >
           <X />
         </button>
-        <div className="mx-auto flex h-full w-full flex-col gap-4">
+        <div className="mx-auto flex h-full w-full max-w-[1024px] flex-col gap-4">
           {children}
         </div>
       </div>

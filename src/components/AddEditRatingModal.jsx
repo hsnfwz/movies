@@ -65,7 +65,7 @@ function AddEditRatingModal({ handleSubmit, show, disabled }) {
         </button>
         <button
           type="button"
-          disabled={disabled || !score}
+          disabled={disabled || !score || (modal.data.rating && modal.data.rating.score == score)}
           onMouseDown={(event) => event.preventDefault()}
           onClick={async () => {
             await handleSubmit(score);
