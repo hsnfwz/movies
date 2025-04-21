@@ -90,7 +90,7 @@ function Modal({ children, disabled, show, handleReset }) {
   return (
     <div
       ref={modalRef}
-      className={`fixed top-0 left-0 z-50 h-[100svh] w-full overflow-y-auto bg-black/75 p-4 backdrop-blur-lg ${show ? 'block' : 'hidden'}`}
+      className={`fixed top-0 left-0 z-50 h-[100dvh] w-full overflow-y-auto bg-black/75 p-4 backdrop-blur-lg ${show ? 'block' : 'hidden'}`}
       onClick={handleModalClickOutside}
     >
       <div className="m-auto flex w-full flex-col gap-4 rounded-2xl bg-white p-4">
