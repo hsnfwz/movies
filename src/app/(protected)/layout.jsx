@@ -1,12 +1,16 @@
 'use client';
 import { useContext, useState, useEffect } from 'react';
+import { usePathname } from 'next/navigation';
+import Link from 'next/link';
 import { useUser } from '@auth0/nextjs-auth0';
 import { ModalContext } from '@/contexts/ModalContextProvider';
 import { DataContext } from '@/contexts/DataContextProvider';
 import AddEditListModal from '@/components/AddEditListModal';
 import AddEditRatingModal from '@/components/AddEditRatingModal';
+import Loading from '@/components/Loading';
 
 function ProtectedLayout({ children }) {
+  const pathname = usePathname();
   const { user, isLoading } = useUser();
   const { modal, setModal } = useContext(ModalContext);
   const {
@@ -90,7 +94,7 @@ function ProtectedLayout({ children }) {
     addedMovies.forEach((movie) => {
       _listMovies[movie.id] = movie;
     });
-    
+
     setLists(_lists);
     setMovies({ ...movies, [modal.data.list.id]: _listMovies });
 
@@ -149,7 +153,7 @@ function ProtectedLayout({ children }) {
   }
 
   if (isLoading) {
-    return <span>Loading...</span>;
+    return <Loading />;
   }
 
   if (!isLoading && !user) {
@@ -158,7 +162,30 @@ function ProtectedLayout({ children }) {
 
   if (!isLoading && user) {
     return (
-      <>
+      <div className="flex flex-col gap-4">
+        <nav className="flex w-full items-center gap-4">
+          <Link
+            onMouseDown={(event) => event.preventDefault()}
+            className={`font-limelight block border-b-2 border-transparent transition-all duration-200 hover:border-b-sky-700 focus:border-black focus:ring-0 focus:outline-0`}
+            href="/"
+          >
+            FilmFest
+          </Link>
+          {/* <Link
+            onMouseDown={(event) => event.preventDefault()}
+            className={`${pathname === '/' ? 'border-sky-500' : 'border-transparent'} block border-b-2 py-2 transition-all duration-200 hover:border-sky-700 focus:border-black focus:ring-0 focus:outline-0 font-limelight`}
+            href="/"
+          >
+            FilmFest
+          </Link> */}
+          {/* <Link
+            onMouseDown={(event) => event.preventDefault()}
+            className={`${pathname === '/lists' ? 'border-sky-500' : 'border-transparent'} block border-b-2 py-2 transition-all duration-200 hover:border-sky-700 focus:border-black focus:ring-0 focus:outline-0`}
+            href="/lists"
+          >
+            Lists
+          </Link> */}
+        </nav>
         <AddEditListModal
           handleSubmit={async (listName, listUsers, listMovies) => {
             if (modal.action === 'ADD_LIST') {
@@ -182,7 +209,7 @@ function ProtectedLayout({ children }) {
           show={modal.action === 'ADD_RATING' || modal.action === 'EDIT_RATING'}
         />
         {children}
-      </>
+      </div>
     );
   }
 }

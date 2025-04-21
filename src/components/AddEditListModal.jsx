@@ -5,6 +5,7 @@ import useUserSearch from '@/hooks/useUserSearch';
 import Modal from '@/components/Modal';
 import { ModalContext } from '@/contexts/ModalContextProvider';
 import SearchCard from './SearchCard';
+import Loading from './Loading';
 
 function AddEditListModal({ handleSubmit, show, disabled }) {
   const { modal, setModal } = useContext(ModalContext);
@@ -85,11 +86,18 @@ function AddEditListModal({ handleSubmit, show, disabled }) {
         {movies.length > 0 && (
           <div className="grid grid-cols-2 gap-2 md:grid-cols-3">
             {movies.map((movie, index) => (
-              <SearchCard key={index} movie={movie} listMovies={listMovies} setListMovies={setListMovies} />
+              <SearchCard
+                key={index}
+                movie={movie}
+                listMovies={listMovies}
+                setListMovies={setListMovies}
+              />
             ))}
           </div>
         )}
-        {movies.length > 0 && (
+        {fetchingMovies && <Loading />}
+
+        {!fetchingMovies && movies.length > 0 && (
           <button
             type="button"
             onMouseDown={(event) => event.preventDefault()}
@@ -97,8 +105,7 @@ function AddEditListModal({ handleSubmit, show, disabled }) {
             className="cursor-pointer rounded-full border-2 border-neutral-100 bg-neutral-100 px-4 py-2 text-black transition-all duration-200 hover:border-neutral-200 focus:border-black focus:ring-0 focus:outline-0 disabled:pointer-events-none disabled:opacity-50"
             disabled={fetchingMovies}
           >
-            {!fetchingMovies && 'Show More'}
-            {fetchingMovies && 'Loading...'}
+            Show More
           </button>
         )}
       </div>
@@ -125,7 +132,9 @@ function AddEditListModal({ handleSubmit, show, disabled }) {
             listName.length === 0 ||
             (modal.action === 'ADD_LIST' &&
               Object.values(listMovies).length === 0) ||
-              ((modal.data.list && modal.data.list.name === listName) && Object.values(listMovies).length === 0) ||
+            (modal.data.list &&
+              modal.data.list.name === listName &&
+              Object.values(listMovies).length === 0) ||
             disabled
           }
           onMouseDown={(event) => event.preventDefault()}

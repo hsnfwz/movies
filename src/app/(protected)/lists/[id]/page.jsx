@@ -6,6 +6,7 @@ import { ModalContext } from '@/contexts/ModalContextProvider';
 import { DataContext } from '@/contexts/DataContextProvider';
 import ScrollYGrid from '@/components/ScrollYGrid';
 import ScrollYCard from '@/components/ScrollYCard';
+import Loading from '@/components/Loading';
 
 function List() {
   const { id } = useParams();
@@ -93,7 +94,7 @@ function List() {
   }, [movies]);
 
   if (fetchingData) {
-    return <span>Loading...</span>;
+    return <Loading />;
   }
 
   if (!fetchingData && lists && !lists[id]) {

@@ -98,62 +98,71 @@ export async function PUT(request) {
 
   if (!listMovies) return Response.json({ list: listRows[0] });
 
-    const addedMovies = [];
-    let i = 0;
-    const movies = Object.values(listMovies);
-    while (i < movies.length) {
-      const movie = movies[i];
-  
-      // check if movie exists
-      const movieValues = [movie.imdb_id];
-      const movieSql = 'select * from movies where imdb_id=$1';
-      const { rows: movieRows } = await pool.query(movieSql, movieValues);
-  
-      if (movieRows.length === 0) {
-        // add movies
-        const newMovieValues = [movie.title, movie.poster, movie.imdb_id];
-        const newMovieSql =
-          'insert into movies (title, poster, imdb_id) values ($1, $2, $3) returning *';
-        const { rows: newMovieRows } = await pool.query(
-          newMovieSql,
-          newMovieValues
-        );
+  const addedMovies = [];
+  let i = 0;
+  const movies = Object.values(listMovies);
+  while (i < movies.length) {
+    const movie = movies[i];
 
-        addedMovies.push({ ...newMovieRows[0], list_id: listId, movie_id: newMovieRows[0].id });
-  
-        // add list_movies based on new movie added
-        const listMoviesValues = [listRows[0].id, newMovieRows[0].id];
+    // check if movie exists
+    const movieValues = [movie.imdb_id];
+    const movieSql = 'select * from movies where imdb_id=$1';
+    const { rows: movieRows } = await pool.query(movieSql, movieValues);
+
+    if (movieRows.length === 0) {
+      // add movies
+      const newMovieValues = [movie.title, movie.poster, movie.imdb_id];
+      const newMovieSql =
+        'insert into movies (title, poster, imdb_id) values ($1, $2, $3) returning *';
+      const { rows: newMovieRows } = await pool.query(
+        newMovieSql,
+        newMovieValues
+      );
+
+      addedMovies.push({
+        ...newMovieRows[0],
+        list_id: listId,
+        movie_id: newMovieRows[0].id,
+      });
+
+      // add list_movies based on new movie added
+      const listMoviesValues = [listRows[0].id, newMovieRows[0].id];
+      const listMoviesSql =
+        'insert into list_movies (list_id, movie_id) values ($1, $2) returning *';
+      const { rows: listMoviesRows } = await pool.query(
+        listMoviesSql,
+        listMoviesValues
+      );
+    } else {
+      addedMovies.push({
+        ...movieRows[0],
+        list_id: listId,
+        movie_id: movieRows[0].id,
+      });
+
+      // check if list_movie exists
+      const listListMoviesValues = [listRows[0].id, movieRows[0].id];
+      const listListMoviesSql =
+        'select * from list_movies where list_id=$1 and movie_id=$2';
+      const { rows: listListMoviesRows } = await pool.query(
+        listListMoviesSql,
+        listListMoviesValues
+      );
+
+      if (!listListMoviesRows[0]) {
+        // add list_movies based on existing movie
+        const listMoviesValues = [listRows[0].id, movieRows[0].id];
         const listMoviesSql =
           'insert into list_movies (list_id, movie_id) values ($1, $2) returning *';
         const { rows: listMoviesRows } = await pool.query(
           listMoviesSql,
           listMoviesValues
         );
-      } else {
-        addedMovies.push({ ...movieRows[0], list_id: listId, movie_id: movieRows[0].id });
-
-        // check if list_movie exists
-        const listListMoviesValues = [listRows[0].id, movieRows[0].id];
-        const listListMoviesSql = 'select * from list_movies where list_id=$1 and movie_id=$2';
-        const { rows: listListMoviesRows } = await pool.query(
-          listListMoviesSql,
-          listListMoviesValues
-        );
-
-        if (!listListMoviesRows[0]) {
-          // add list_movies based on existing movie
-          const listMoviesValues = [listRows[0].id, movieRows[0].id];
-          const listMoviesSql =
-            'insert into list_movies (list_id, movie_id) values ($1, $2) returning *';
-          const { rows: listMoviesRows } = await pool.query(
-            listMoviesSql,
-            listMoviesValues
-          );
-        }
       }
-  
-      i++;
     }
 
-    return Response.json({ list: listRows[0], addedMovies });
+    i++;
+  }
+
+  return Response.json({ list: listRows[0], addedMovies });
 }

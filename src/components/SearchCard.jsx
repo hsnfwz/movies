@@ -6,21 +6,21 @@ function SearchCard({ movie, listMovies, setListMovies }) {
 
   return (
     <button
-    type="button"
-    onMouseDown={(event) => event.preventDefault()}
-    onClick={() => {
-      if (!listMovies[movie.imdbID]) {
-        const _listMovies = { ...listMovies };
-        _listMovies[movie.imdbID] = {
-          title: movie.Title,
-          poster: movie.Poster,
-          imdb_id: movie.imdbID,
-        };
-        setListMovies(_listMovies);
-      }
-    }}
-    className="group flex cursor-pointer flex-col gap-2 focus:ring-0 focus:outline-0"
-  >
+      type="button"
+      onMouseDown={(event) => event.preventDefault()}
+      onClick={() => {
+        if (!listMovies[movie.imdbID]) {
+          const _listMovies = { ...listMovies };
+          _listMovies[movie.imdbID] = {
+            title: movie.Title,
+            poster: movie.Poster,
+            imdb_id: movie.imdbID,
+          };
+          setListMovies(_listMovies);
+        }
+      }}
+      className="group flex cursor-pointer flex-col gap-2 focus:ring-0 focus:outline-0"
+    >
       <img
         id={`img-${movie.movie_id}`}
         src={movie.Poster}
@@ -37,7 +37,7 @@ function SearchCard({ movie, listMovies, setListMovies }) {
         className={`aspect-square w-full animate-pulse rounded-3xl bg-neutral-100 ${loadingImage ? 'visible' : 'hidden'}`}
       ></div>
       {!loadingImage && <h2>{movie.Title}</h2>}
-</button>
+    </button>
   );
 }
 
