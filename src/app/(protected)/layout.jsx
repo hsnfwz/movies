@@ -1,6 +1,5 @@
 'use client';
 import { useContext, useState, useEffect } from 'react';
-import { usePathname } from 'next/navigation';
 import Link from 'next/link';
 import { useUser } from '@auth0/nextjs-auth0';
 import { ModalContext } from '@/contexts/ModalContextProvider';
@@ -10,7 +9,6 @@ import AddEditRatingModal from '@/components/AddEditRatingModal';
 import Loading from '@/components/Loading';
 
 function ProtectedLayout({ children }) {
-  const pathname = usePathname();
   const { user, isLoading } = useUser();
   const { modal, setModal } = useContext(ModalContext);
   const {
@@ -146,6 +144,9 @@ function ProtectedLayout({ children }) {
     if (error) return console.log(error);
 
     const _ratings = { ...ratings, [rating.movie_id]: rating };
+
+    console.log(_ratings)
+
     setRatings(_ratings);
 
     setSubmitting(false);

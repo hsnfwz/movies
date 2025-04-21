@@ -65,7 +65,7 @@ function ScrollYCard({ movie }) {
               onMouseDown={(event) => event.preventDefault()}
               onClick={() =>
                 setModal({
-                  action: 'ADD_RATING',
+                  action: ratings[movie.movie_id] ? 'EDIT_RATING' : 'ADD_RATING',
                   data: { movie, rating: ratings[movie.movie_id] },
                 })
               }
