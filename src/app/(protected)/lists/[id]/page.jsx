@@ -67,11 +67,6 @@ function List() {
 
           listRatings.forEach((rating) => (ratings[rating.movie_id] = rating));
 
-          const _filteredMovies = listMovies.filter(
-            (listMovie) => listMovie.list_id == id
-          );
-          setFilteredMovies(_filteredMovies);
-
           setMovies({ ...movies, ..._listMovies });
           setRatings({ ...ratings, ...listRatings });
           setLists({ ...lists, [id]: list });
@@ -87,6 +82,15 @@ function List() {
 
     fetchData();
   }, [fetchingLists]);
+
+  useEffect(() => {
+    if (!fetchingData && movies) {
+      const _filteredMovies = Object.values(movies[id]).filter(
+        (listMovie) => listMovie.list_id == id
+      );
+      setFilteredMovies(_filteredMovies);
+    }
+  }, [movies]);
 
   if (fetchingData) {
     return <span>Loading...</span>;

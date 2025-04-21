@@ -76,15 +76,23 @@ function ProtectedLayout({ children }) {
       body: JSON.stringify({
         listName,
         listId: modal.data.list.id,
+        listMovies,
       }),
     });
 
-    const { list, error } = await response.json();
+    const { list, addedMovies, error } = await response.json();
 
     if (error) return console.log(error);
 
     const _lists = { ...lists, [list.id]: list };
+
+    const _listMovies = { ...movies[modal.data.list.id] };
+    addedMovies.forEach((movie) => {
+      _listMovies[movie.id] = movie;
+    });
+    
     setLists(_lists);
+    setMovies({ ...movies, [modal.data.list.id]: _listMovies });
 
     setSubmitting(false);
     setModal({ action: '', data: null });

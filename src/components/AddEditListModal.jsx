@@ -125,9 +125,6 @@ function AddEditListModal({ handleSubmit, show, disabled }) {
             listName.length === 0 ||
             (modal.action === 'ADD_LIST' &&
               Object.values(listMovies).length === 0) ||
-            (modal.data &&
-              modal.data.list &&
-              listName === modal.data.list.name) ||
             disabled
           }
           onMouseDown={(event) => event.preventDefault()}
