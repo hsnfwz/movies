@@ -1,25 +1,15 @@
 'use client';
 import { useState } from 'react';
 
-function SearchCard({ movie, listMovies, setListMovies }) {
+function SearchCard({ movie, disabled, handleSelect }) {
   const [loadingImage, setLoadingImage] = useState(true);
 
   return (
     <button
-      disabled={listMovies[movie.imdbID]}
+      disabled={disabled}
       type="button"
       onMouseDown={(event) => event.preventDefault()}
-      onClick={() => {
-        if (!listMovies[movie.imdbID]) {
-          const _listMovies = { ...listMovies };
-          _listMovies[movie.imdbID] = {
-            title: movie.Title,
-            poster: movie.Poster,
-            imdb_id: movie.imdbID,
-          };
-          setListMovies(_listMovies);
-        }
-      }}
+      onClick={handleSelect}
       className={`flex cursor-pointer justify-between gap-2 rounded-xl border-2 border-neutral-100 p-4 transition-all duration-100 hover:border-black focus:border-black focus:ring-0 focus:outline-0 disabled:pointer-events-none disabled:border-dotted disabled:border-black`}
     >
       <img

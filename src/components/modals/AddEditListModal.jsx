@@ -178,8 +178,18 @@ function AddEditListModal({ handleSubmit, show, disabled }) {
               <SearchCard
                 key={index}
                 movie={movie}
-                listMovies={listMovies}
-                setListMovies={setListMovies}
+                disabled={listMovies[movie.imdbID]}
+                handleSelect={() => {
+                  if (!listMovies[movie.imdbID]) {
+                    const _listMovies = { ...listMovies };
+                    _listMovies[movie.imdbID] = {
+                      title: movie.Title,
+                      poster: movie.Poster,
+                      imdb_id: movie.imdbID,
+                    };
+                    setListMovies(_listMovies);
+                  }
+                }}
               />
             ))}
           </div>
@@ -219,12 +229,6 @@ function AddEditListModal({ handleSubmit, show, disabled }) {
           type="button"
           disabled={
             listName.length === 0 ||
-            (modal.action === 'ADD_LIST' &&
-              Object.values(listMovies).length === 0) ||
-            (modal.data &&
-              modal.data.list &&
-              modal.data.list.name === listName &&
-              Object.values(listMovies).length === 0) ||
             disabled
           }
           onMouseDown={(event) => event.preventDefault()}

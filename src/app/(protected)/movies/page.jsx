@@ -1,23 +1,16 @@
 'use client';
-import { useEffect, useState, useRef, useContext } from 'react';
-import { useParams } from 'next/navigation';
-import { Pen } from 'lucide-react';
-import { ModalContext } from '@/contexts/ModalContextProvider';
-import { DataContext } from '@/contexts/DataContextProvider';
-import ScrollYGrid from '@/components/ScrollYGrid';
-import ScrollYCard from '@/components/ScrollYCard';
-import Loading from '@/components/Loading';
-import Empty from '@/components/Empty';
+import { useEffect, useState, useRef, useContext } from "react";
+import { DataContext } from "@/contexts/DataContextProvider";
+import { Plus } from "lucide-react";
+import ScrollYCard from "@/components/ScrollYCard";
+import ScrollYGrid from "@/components/ScrollYGrid";
+import Loading from "@/components/Loading";
+import { ModalContext } from "@/contexts/ModalContextProvider";
 
-function List() {
-  const { id } = useParams();
+function Movies() {
   const { modal, setModal } = useContext(ModalContext);
   const {
-    lists,
-    setLists,
-    movies,
-    setMovies,
-    fetchingLists,
+    moviesWithoutList, setMoviesWithoutList,
   } = useContext(DataContext);
   const [fetchingData, setFetchingData] = useState(true);
   const [filteredMovies, setFilteredMovies] = useState([]);
@@ -32,14 +25,11 @@ function List() {
     clearTimeout(searchTimerRef.current);
     searchTimerRef.current = setTimeout(() => {
       if (_title.length === 0) {
-        const _filteredMovies = Object.values(movies[id]).filter(
-          (listMovie) => listMovie.list_id == id
-        );
+        const _filteredMovies = Object.values(moviesWithoutList)
         setFilteredMovies(_filteredMovies);
       } else {
-        const _filteredMovies = Object.values(movies[id]).filter(
+        const _filteredMovies = Object.values(moviesWithoutList).filter(
           (movie) =>
-            movie.list_id == id &&
             movie.title.toLowerCase().includes(_title.trim().toLowerCase())
         );
         setFilteredMovies(_filteredMovies);
@@ -49,74 +39,68 @@ function List() {
 
   useEffect(() => {
     async function fetchData() {
-      if (!fetchingLists) {
-        if (!lists[id] || !movies[id]) {
-          const response = await fetch(`/api/lists/${id}`);
-          const { list, listMovies, error } =
-            await response.json();
+      if (!moviesWithoutList) {
+        const response = await fetch(`/api/movies`);
+        const { movies, error } =
+          await response.json();
 
-          if (error) {
-            setFetchingData(false);
-            return console.log(error);
-          }
-
-          const _listMovies = { [id]: {} };
-          listMovies.forEach((movie) => {
-            _listMovies[id][movie.movie_id] = movie;
-          });
-
-          setMovies({ ...movies, ..._listMovies });
-          setLists({ ...lists, [id]: list });
-        } else {
-          const _filteredMovies = Object.values(movies[id]).filter(
-            (listMovie) => listMovie.list_id == id
-          );
-          setFilteredMovies(_filteredMovies);
+        if (error) {
+          setFetchingData(false);
+          return console.log(error);
         }
+
+        const _movies = {};
+        movies.forEach((movie) => _movies[movie.id] = movie);
+
+        setMoviesWithoutList(_movies);
       }
+
       setFetchingData(false);
     }
 
     fetchData();
-  }, [fetchingLists]);
+  }, []);
 
   useEffect(() => {
-    if (!fetchingData && movies) {
-      const _filteredMovies = Object.values(movies[id]).filter(
-        (listMovie) => listMovie.list_id == id
-      );
+    if (!fetchingData) {
+      const _filteredMovies = Object.values(moviesWithoutList);
       setFilteredMovies(_filteredMovies);
     }
-  }, [movies]);
+  }, [fetchingData, moviesWithoutList]);
 
   if (fetchingData) {
     return <Loading />;
   }
 
-  if (!fetchingData && lists && !lists[id]) {
-    return <Empty />;
-  }
-
-  if (!fetchingData && lists && lists[id]) {
+  if (!fetchingData) {
     return (
       <div className="flex w-full flex-col gap-4">
         <div className="flex w-full items-center gap-4">
-          <h1>{lists[id].name}</h1>
+          <h1>
+            {Object.keys(moviesWithoutList).length === 0
+              ? 'You do not have any movies yet'
+              : 'My Movies'}
+          </h1>
           <button
             type="button"
             onMouseDown={(event) => event.preventDefault()}
             onClick={() =>
-              setModal({ action: 'EDIT_LIST', data: { list: lists[id] } })
+              setModal({ action: 'ADD_MOVIE' })
             }
             className="ml-auto flex h-[48px] w-[48px] cursor-pointer items-center justify-center rounded-full border-2 border-sky-500 bg-sky-500 text-white transition-all duration-100 hover:border-sky-700 focus:border-black focus:ring-0 focus:outline-0"
           >
-            <Pen />
+            <Plus />
           </button>
         </div>
-        <input
+        {Object.keys(moviesWithoutList).length === 0 && (
+          <p>Let's get you started by adding your first movie!</p>
+        )}
+        {Object.keys(moviesWithoutList).length > 0 && (
+<>
+<input
           type="text"
           value={title}
-          placeholder="Search Movies in List"
+          placeholder="Search Movies"
           onInput={handleSearch}
           className="flex h-[48px] w-full rounded-full border-2 border-neutral-100 bg-neutral-100 px-4 text-black placeholder-neutral-400 transition-all duration-100 hover:border-neutral-200 focus:border-black focus:bg-white focus:ring-0 focus:outline-0"
         />
@@ -125,9 +109,12 @@ function List() {
             <ScrollYCard key={index} movie={movie} />
           ))}
         </ScrollYGrid>
+</>
+        )}
+        
       </div>
     );
   }
 }
 
-export default List;
+export default Movies;

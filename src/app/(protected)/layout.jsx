@@ -1,12 +1,14 @@
 'use client';
 import { useContext, useState, useEffect } from 'react';
-import Link from 'next/link';
 import { useUser } from '@auth0/nextjs-auth0';
 import { ModalContext } from '@/contexts/ModalContextProvider';
 import { DataContext } from '@/contexts/DataContextProvider';
 import AddEditListModal from '@/components/modals/AddEditListModal';
-import AddEditRatingModal from '@/components/modals/AddEditRatingModal';
+import EditMovieRatingModal from '@/components/modals/EditMovieRatingModal';
 import Loading from '@/components/Loading';
+import Empty from '@/components/Empty';
+import AddMovieModal from '@/components/modals/AddMovieModal';
+import Nav from '@/components/Nav';
 
 function ProtectedLayout({ children }) {
   const { user, isLoading } = useUser();
@@ -16,9 +18,8 @@ function ProtectedLayout({ children }) {
     setLists,
     movies,
     setMovies,
-    ratings,
-    setRatings,
     setFetchingLists,
+    moviesWithoutList, setMoviesWithoutList,
   } = useContext(DataContext);
   const [submitting, setSubmitting] = useState(false);
 
@@ -40,6 +41,32 @@ function ProtectedLayout({ children }) {
 
     fetchData();
   }, []);
+
+  async function handleAddMovie(selectedMovies) {
+    setSubmitting(true);
+
+    const response = await fetch('/api/movies', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        movies: Object.values(selectedMovies),
+      }),
+    });
+
+    const { movies, error } = await response.json();
+
+    if (error) return console.log(error);
+
+    const _movies = {};
+    movies.forEach((movie) => _movies[movie.id] = movie);
+
+    setMoviesWithoutList({ ...moviesWithoutList, ..._movies });
+
+    setSubmitting(false);
+    setModal({ action: '', data: null });
+  }
 
   async function handleAddList(listName, listUsers, listMovies) {
     setSubmitting(true);
@@ -133,54 +160,25 @@ function ProtectedLayout({ children }) {
     setModal({ action: '', data: null });
   }
 
-  async function handleAddRating(score) {
+  async function handleEditMovieRating(rating) {
     setSubmitting(true);
 
-    const response = await fetch('/api/ratings', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        score,
-        movieId: modal.data.movie.movie_id,
-      }),
-    });
-
-    const { rating, error } = await response.json();
-
-    if (error) return console.log(error);
-
-    const _ratings = { ...ratings, [rating.movie_id]: rating };
-    setRatings(_ratings);
-
-    setSubmitting(false);
-    setModal({ action: '', data: null });
-  }
-
-  async function handleEditRating(score) {
-    setSubmitting(true);
-
-    const response = await fetch('/api/ratings', {
+    const response = await fetch(`/api/movies/${modal.data.movie.id}`, {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        score,
-        ratingId: modal.data.rating.id,
+        rating,
       }),
     });
 
-    const { rating, error } = await response.json();
+    const { movie, error } = await response.json();
 
     if (error) return console.log(error);
 
-    const _ratings = { ...ratings, [rating.movie_id]: rating };
-
-    console.log(_ratings);
-
-    setRatings(_ratings);
+    const _movies = { ...moviesWithoutList, [movie.id]: { ...moviesWithoutList[movie.id], rating: movie.rating }};
+    setMoviesWithoutList({ ...moviesWithoutList, ..._movies });
 
     setSubmitting(false);
     setModal({ action: '', data: null });
@@ -191,35 +189,27 @@ function ProtectedLayout({ children }) {
   }
 
   if (!isLoading && !user) {
-    return <div>No Content</div>;
+    return <Empty />;
   }
 
   if (!isLoading && user) {
     return (
-      <div className="flex flex-col gap-4">
-        <nav className="flex w-full items-center gap-4">
-          <Link
-            onMouseDown={(event) => event.preventDefault()}
-            className={`font-limelight block border-b-2 border-transparent transition-all duration-100 hover:border-b-sky-700 focus:border-black focus:ring-0 focus:outline-0`}
-            href="/"
-          >
-            FilmFest
-          </Link>
-          {/* <Link
-            onMouseDown={(event) => event.preventDefault()}
-            className={`${pathname === '/' ? 'border-sky-500' : 'border-transparent'} block border-b-2 h-[48px] transition-all duration-100 hover:border-sky-700 focus:border-black focus:ring-0 focus:outline-0 font-limelight`}
-            href="/"
-          >
-            FilmFest
-          </Link> */}
-          {/* <Link
-            onMouseDown={(event) => event.preventDefault()}
-            className={`${pathname === '/lists' ? 'border-sky-500' : 'border-transparent'} block border-b-2 h-[48px] transition-all duration-100 hover:border-sky-700 focus:border-black focus:ring-0 focus:outline-0`}
-            href="/lists"
-          >
-            Lists
-          </Link> */}
-        </nav>
+      <div className="flex flex-col gap-4 w-full">
+        <Nav />
+        <AddMovieModal
+          handleSubmit={async (selectedMovies) => {
+            await handleAddMovie(selectedMovies);
+          }}
+          disabled={submitting}
+          show={modal.action === 'ADD_MOVIE'}
+        />
+        <EditMovieRatingModal
+          handleSubmit={async (score) => {
+            await handleEditMovieRating(score);
+          }}
+          disabled={submitting}
+          show={modal.action === 'EDIT_MOVIE_RATING'}
+        />
         <AddEditListModal
           handleSubmit={async (listName, listUsers, listMovies) => {
             if (modal.action === 'ADD_LIST') {
@@ -231,17 +221,7 @@ function ProtectedLayout({ children }) {
           disabled={submitting}
           show={modal.action === 'ADD_LIST' || modal.action === 'EDIT_LIST'}
         />
-        <AddEditRatingModal
-          handleSubmit={async (score) => {
-            if (modal.action === 'ADD_RATING') {
-              await handleAddRating(score);
-            } else if (modal.action === 'EDIT_RATING') {
-              await handleEditRating(score);
-            }
-          }}
-          disabled={submitting}
-          show={modal.action === 'ADD_RATING' || modal.action === 'EDIT_RATING'}
-        />
+
         {children}
       </div>
     );

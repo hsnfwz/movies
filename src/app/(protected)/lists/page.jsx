@@ -61,7 +61,7 @@ function Home() {
         </div>
 
         {Object.keys(lists).length === 0 && (
-          <p>Let's get you started by creating your first list!</p>
+          <p>Let's get you started by adding your first list!</p>
         )}
         {Object.keys(lists).length > 0 && (
           <>

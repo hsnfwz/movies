@@ -7,7 +7,7 @@ function DataContextProvider({ children }) {
   const [lists, setLists] = useState(null);
   const [fetchingLists, setFetchingLists] = useState(true);
   const [movies, setMovies] = useState({});
-  const [ratings, setRatings] = useState({});
+  const [moviesWithoutList, setMoviesWithoutList] = useState(null);
 
   return (
     <DataContext.Provider
@@ -16,10 +16,9 @@ function DataContextProvider({ children }) {
         setLists,
         movies,
         setMovies,
-        ratings,
-        setRatings,
         fetchingLists,
         setFetchingLists,
+        moviesWithoutList, setMoviesWithoutList,
       }}
     >
       {children}

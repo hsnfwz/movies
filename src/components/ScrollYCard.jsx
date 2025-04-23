@@ -3,12 +3,9 @@ import { useState, useContext } from 'react';
 import Link from 'next/link';
 import { Star } from 'lucide-react';
 import { ModalContext } from '@/contexts/ModalContextProvider';
-import { DataContext } from '@/contexts/DataContextProvider';
 
 function ScrollYCard({ movie }) {
   const { modal, setModal } = useContext(ModalContext);
-  const { ratings } = useContext(DataContext);
-
   const [loadingImage, setLoadingImage] = useState(true);
 
   return (
@@ -34,9 +31,7 @@ function ScrollYCard({ movie }) {
             <h2 className="font-bold">{movie.title}</h2>
             <p className="text-amber-500">
               <span className="font-bold">
-                {ratings[movie.movie_id]
-                  ? `${ratings[movie.movie_id].score}`
-                  : '-'}
+                {movie.rating ? movie.rating : '-'}
               </span>{' '}
               / 10
             </p>
@@ -72,18 +67,16 @@ function ScrollYCard({ movie }) {
               onMouseDown={(event) => event.preventDefault()}
               onClick={() =>
                 setModal({
-                  action: ratings[movie.movie_id]
-                    ? 'EDIT_RATING'
-                    : 'ADD_RATING',
-                  data: { movie, rating: ratings[movie.movie_id] },
+                  action: 'EDIT_MOVIE_RATING',
+                  data: { movie },
                 })
               }
-              className={`flex h-[48px] w-[48px] cursor-pointer items-center justify-center self-end rounded-full border-2 border-amber-500 transition-all duration-100 hover:border-amber-700 focus:border-black focus:ring-0 focus:outline-0 ${ratings[movie.movie_id] ? 'bg-amber-500' : 'bg-white'}`}
+              className={`flex h-[48px] w-[48px] cursor-pointer items-center justify-center self-end rounded-full border-2 border-amber-500 transition-all duration-100 hover:border-amber-700 focus:border-black focus:ring-0 focus:outline-0 ${movie.rating ? 'bg-amber-500' : 'bg-white'}`}
             >
               <Star
                 fill="white"
                 stroke={
-                  ratings[movie.movie_id] ? 'white' : 'oklch(76.9% 0.188 70.08)'
+                  movie.rating ? 'white' : 'oklch(76.9% 0.188 70.08)'
                 }
               />
             </button>

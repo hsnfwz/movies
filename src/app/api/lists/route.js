@@ -1,14 +1,10 @@
-import pkg from 'pg';
+import { pool } from '@/lib/pg';
 import { auth0 } from '@/lib/auth0';
 
 export async function GET() {
   const { user } = await auth0.getSession();
 
   if (!user) return Response.json({ error: 'Authentication required.' });
-
-  const pool = new pkg.Pool({
-    connectionString: process.env.NEON_DATABASE_URL,
-  });
 
   const values = [user.sub];
   const sql = 'select * from lists where auth0_user_id=$1';
@@ -17,6 +13,8 @@ export async function GET() {
   return Response.json({ lists: rows });
 }
 
+// TODO: fix POST and PUT; move PUT to [id] folder
+
 export async function POST(request) {
   const { listName, listMovies } = await request.json();
   const { user } = await auth0.getSession();
@@ -24,10 +22,6 @@ export async function POST(request) {
   if (!user) return Response.json({ error: 'Authentication required.' });
   if (!listName || !listMovies)
     return Response.json({ error: 'List name and movies are required.' });
-
-  const pool = new pkg.Pool({
-    connectionString: process.env.NEON_DATABASE_URL,
-  });
 
   // add lists
   const listValues = [user.sub, listName];
