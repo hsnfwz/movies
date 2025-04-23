@@ -6,6 +6,7 @@ function SearchCard({ movie, listMovies, setListMovies }) {
 
   return (
     <button
+      disabled={listMovies[movie.imdbID]}
       type="button"
       onMouseDown={(event) => event.preventDefault()}
       onClick={() => {
@@ -19,13 +20,13 @@ function SearchCard({ movie, listMovies, setListMovies }) {
           setListMovies(_listMovies);
         }
       }}
-      className="group flex cursor-pointer flex-col gap-2 focus:ring-0 focus:outline-0"
+      className={`flex cursor-pointer justify-between gap-2 rounded-xl border-2 border-neutral-100 p-4 transition-all duration-100 hover:border-black focus:border-black focus:ring-0 focus:outline-0 disabled:pointer-events-none disabled:border-dotted disabled:border-black`}
     >
       <img
         id={`img-${movie.movie_id}`}
         src={movie.Poster}
         alt={movie.Title}
-        className={`w-full rounded-3xl border-2 p-2 transition-all duration-200 group-hover:border-sky-500 group-focus:border-black group-focus:ring-0 group-focus:outline-0 ${listMovies[movie.imdbID] ? 'border-dotted border-sky-500 bg-sky-300' : 'border-transparent'} ${loadingImage ? 'hidden' : 'visible'}`}
+        className={`w-full max-w-[100px] rounded-xl ${loadingImage ? 'hidden' : 'visible'}`}
         onError={() => {
           const imageElement = document.getElementById(`img-${movie.movie_id}`);
           imageElement.onerror = null;
@@ -34,9 +35,12 @@ function SearchCard({ movie, listMovies, setListMovies }) {
         onLoad={() => setLoadingImage(false)}
       />
       <div
-        className={`aspect-square w-full animate-pulse rounded-3xl bg-neutral-100 ${loadingImage ? 'visible' : 'hidden'}`}
+        className={`aspect-square w-full max-w-[100px] animate-pulse rounded-xl bg-neutral-100 ${loadingImage ? 'visible' : 'hidden'}`}
       ></div>
-      {!loadingImage && <h2>{movie.Title}</h2>}
+      <div className="flex flex-col gap-2 self-center text-right">
+        <h2 className={`font-bold`}>{movie.Title}</h2>
+        <p>{movie.Year}</p>
+      </div>
     </button>
   );
 }

@@ -17,7 +17,7 @@ function Welcome() {
         {user && (
           <Link
             onMouseDown={(event) => event.preventDefault()}
-            className="block rounded-full border-2 border-sky-500 bg-sky-500 px-4 py-2 text-white transition-all duration-200 hover:border-sky-700 focus:border-black focus:ring-0 focus:outline-0"
+            className="flex items-center justify-center h-[48px] rounded-full border-2 border-sky-500 bg-sky-500 px-4 text-white transition-all duration-100 hover:border-sky-700 focus:border-black focus:ring-0 focus:outline-0"
             href="/lists"
           >
             Lists
@@ -26,7 +26,7 @@ function Welcome() {
         {!user && (
           <Link
             onMouseDown={(event) => event.preventDefault()}
-            className="block rounded-full border-2 border-sky-500 bg-sky-500 px-4 py-2 text-white transition-all duration-200 hover:border-sky-700 focus:border-black focus:ring-0 focus:outline-0"
+            className="flex items-center justify-center h-[48px] rounded-full border-2 border-sky-500 bg-sky-500 px-4 text-white transition-all duration-100 hover:border-sky-700 focus:border-black focus:ring-0 focus:outline-0"
             href="/auth/login"
           >
             Sign In

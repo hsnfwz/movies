@@ -18,7 +18,7 @@ export async function GET() {
 }
 
 export async function POST(request) {
-  const { listName, listUsers, listMovies } = await request.json();
+  const { listName, listMovies } = await request.json();
   const { user } = await auth0.getSession();
 
   if (!user) return Response.json({ error: 'Authentication required.' });

@@ -99,11 +99,11 @@ function Modal({ children, disabled, show, handleReset }) {
           disabled={disabled}
           onClick={closeModal}
           onMouseDown={(event) => event.preventDefault()}
-          className="flex h-[48px] w-[48px] cursor-pointer items-center justify-center self-end rounded-full border-2 border-neutral-100 bg-neutral-100 text-black transition-all duration-200 hover:border-neutral-200 focus:border-black focus:ring-0 focus:outline-0"
+          className="flex h-[48px] w-[48px] cursor-pointer items-center justify-center self-end rounded-full border-2 border-neutral-100 bg-neutral-100 text-black transition-all duration-100 hover:border-neutral-200 focus:border-black focus:ring-0 focus:outline-0"
         >
           <X />
         </button>
-        <div className="mx-auto flex h-full w-full max-w-[1024px] flex-col gap-4">
+        <div className="mx-auto flex h-full w-full max-w-[1024px] flex-col gap-8">
           {children}
         </div>
       </div>

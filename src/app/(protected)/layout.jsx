@@ -4,8 +4,8 @@ import Link from 'next/link';
 import { useUser } from '@auth0/nextjs-auth0';
 import { ModalContext } from '@/contexts/ModalContextProvider';
 import { DataContext } from '@/contexts/DataContextProvider';
-import AddEditListModal from '@/components/AddEditListModal';
-import AddEditRatingModal from '@/components/AddEditRatingModal';
+import AddEditListModal from '@/components/modals/AddEditListModal';
+import AddEditRatingModal from '@/components/modals/AddEditRatingModal';
 import Loading from '@/components/Loading';
 
 function ProtectedLayout({ children }) {
@@ -51,7 +51,6 @@ function ProtectedLayout({ children }) {
       },
       body: JSON.stringify({
         listName,
-        listUsers,
         listMovies,
       }),
     });
@@ -59,6 +58,23 @@ function ProtectedLayout({ children }) {
     const { list, error } = await response.json();
 
     if (error) return console.log(error);
+    
+    if (Object.keys(listUsers).length > 0) {
+      const response = await fetch('/api/invites', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          listId: list.id,
+          listUsers,
+        }),
+      });
+  
+      const { message, error } = await response.json();
+  
+      if (error) return console.log(error);
+    }
 
     const _lists = { ...lists, [list.id]: list };
     setLists(_lists);
@@ -85,6 +101,23 @@ function ProtectedLayout({ children }) {
     const { list, addedMovies, error } = await response.json();
 
     if (error) return console.log(error);
+
+    if (Object.keys(listUsers).length > 0) {
+      const response = await fetch('/api/invites', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          listId: modal.data.list.id,
+          listUsers,
+        }),
+      });
+  
+      const { message, error } = await response.json();
+  
+      if (error) return console.log(error);
+    }
 
     const _lists = { ...lists, [list.id]: list };
 
@@ -145,7 +178,7 @@ function ProtectedLayout({ children }) {
 
     const _ratings = { ...ratings, [rating.movie_id]: rating };
 
-    console.log(_ratings)
+    console.log(_ratings);
 
     setRatings(_ratings);
 
@@ -167,21 +200,21 @@ function ProtectedLayout({ children }) {
         <nav className="flex w-full items-center gap-4">
           <Link
             onMouseDown={(event) => event.preventDefault()}
-            className={`font-limelight block border-b-2 border-transparent transition-all duration-200 hover:border-b-sky-700 focus:border-black focus:ring-0 focus:outline-0`}
+            className={`font-limelight block border-b-2 border-transparent transition-all duration-100 hover:border-b-sky-700 focus:border-black focus:ring-0 focus:outline-0`}
             href="/"
           >
             FilmFest
           </Link>
           {/* <Link
             onMouseDown={(event) => event.preventDefault()}
-            className={`${pathname === '/' ? 'border-sky-500' : 'border-transparent'} block border-b-2 py-2 transition-all duration-200 hover:border-sky-700 focus:border-black focus:ring-0 focus:outline-0 font-limelight`}
+            className={`${pathname === '/' ? 'border-sky-500' : 'border-transparent'} block border-b-2 h-[48px] transition-all duration-100 hover:border-sky-700 focus:border-black focus:ring-0 focus:outline-0 font-limelight`}
             href="/"
           >
             FilmFest
           </Link> */}
           {/* <Link
             onMouseDown={(event) => event.preventDefault()}
-            className={`${pathname === '/lists' ? 'border-sky-500' : 'border-transparent'} block border-b-2 py-2 transition-all duration-200 hover:border-sky-700 focus:border-black focus:ring-0 focus:outline-0`}
+            className={`${pathname === '/lists' ? 'border-sky-500' : 'border-transparent'} block border-b-2 h-[48px] transition-all duration-100 hover:border-sky-700 focus:border-black focus:ring-0 focus:outline-0`}
             href="/lists"
           >
             Lists

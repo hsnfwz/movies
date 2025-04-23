@@ -17,7 +17,7 @@ function ScrollYCard({ movie }) {
         id={`img-${movie.movie_id}`}
         src={movie.poster}
         alt={movie.title}
-        className={`w-full rounded-3xl ${loadingImage ? 'hidden' : 'visible'}`}
+        className={`w-full rounded-xl ${loadingImage ? 'hidden' : 'visible'}`}
         onError={() => {
           const imageElement = document.getElementById(`img-${movie.movie_id}`);
           imageElement.onerror = null;
@@ -26,18 +26,25 @@ function ScrollYCard({ movie }) {
         onLoad={() => setLoadingImage(false)}
       />
       <div
-        className={`aspect-square w-full animate-pulse rounded-3xl bg-neutral-100 ${loadingImage ? 'visible' : 'hidden'}`}
+        className={`aspect-square w-full animate-pulse rounded-xl bg-neutral-100 ${loadingImage ? 'visible' : 'hidden'}`}
       ></div>
       {!loadingImage && (
         <>
-          <div className="flex flex-col gap-2 rounded-3xl bg-neutral-100 p-4">
+          <div className="flex flex-col gap-2 rounded-xl bg-neutral-100 p-4">
             <h2 className="font-bold">{movie.title}</h2>
-            <p className="text-amber-500"><span className="font-bold">{ratings[movie.movie_id] ? `${ratings[movie.movie_id].score}` : '-'}</span> / 10</p>
+            <p className="text-amber-500">
+              <span className="font-bold">
+                {ratings[movie.movie_id]
+                  ? `${ratings[movie.movie_id].score}`
+                  : '-'}
+              </span>{' '}
+              / 10
+            </p>
           </div>
           <div className="mt-auto flex gap-2 self-end">
             <Link
               onMouseDown={(event) => event.preventDefault()}
-              className="flex h-[48px] w-[48px] items-center justify-center rounded-full border-2 border-neutral-100 bg-neutral-100 text-black transition-all duration-200 hover:border-neutral-200 focus:border-black focus:ring-0 focus:outline-0"
+              className="flex h-[48px] w-[48px] items-center justify-center rounded-full border-2 border-neutral-100 bg-neutral-100 text-black transition-all duration-100 hover:border-neutral-200 focus:border-black focus:ring-0 focus:outline-0"
               href={`https://www.imdb.com/title/${movie.imdb_id}`}
               target="_blank"
             >
@@ -65,11 +72,13 @@ function ScrollYCard({ movie }) {
               onMouseDown={(event) => event.preventDefault()}
               onClick={() =>
                 setModal({
-                  action: ratings[movie.movie_id] ? 'EDIT_RATING' : 'ADD_RATING',
+                  action: ratings[movie.movie_id]
+                    ? 'EDIT_RATING'
+                    : 'ADD_RATING',
                   data: { movie, rating: ratings[movie.movie_id] },
                 })
               }
-              className={`flex h-[48px] w-[48px] cursor-pointer items-center justify-center self-end rounded-full border-2 border-amber-500 transition-all duration-200 hover:border-amber-700 focus:border-black focus:ring-0 focus:outline-0 ${ratings[movie.movie_id] ? 'bg-amber-500' : 'bg-white'}`}
+              className={`flex h-[48px] w-[48px] cursor-pointer items-center justify-center self-end rounded-full border-2 border-amber-500 transition-all duration-100 hover:border-amber-700 focus:border-black focus:ring-0 focus:outline-0 ${ratings[movie.movie_id] ? 'bg-amber-500' : 'bg-white'}`}
             >
               <Star
                 fill="white"

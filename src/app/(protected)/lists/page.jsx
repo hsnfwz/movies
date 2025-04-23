@@ -54,7 +54,7 @@ function Home() {
             type="button"
             onMouseDown={(event) => event.preventDefault()}
             onClick={() => setModal({ action: 'ADD_LIST' })}
-            className="ml-auto flex h-[48px] w-[48px] cursor-pointer items-center justify-center rounded-full border-2 border-sky-500 bg-sky-500 text-white transition-all duration-200 hover:border-sky-700 focus:border-black focus:ring-0 focus:outline-0"
+            className="ml-auto flex h-[48px] w-[48px] cursor-pointer items-center justify-center rounded-full border-2 border-sky-500 bg-sky-500 text-white transition-all duration-100 hover:border-sky-700 focus:border-black focus:ring-0 focus:outline-0"
           >
             <Plus />
           </button>
@@ -70,14 +70,14 @@ function Home() {
               placeholder="Search Lists"
               value={name}
               onInput={handleSearch}
-              className="flex w-full rounded-full border-2 border-neutral-100 bg-neutral-100 px-4 py-2 text-black placeholder-neutral-400 transition-all duration-200 hover:border-neutral-200 focus:border-black focus:bg-white focus:ring-0 focus:outline-0"
+              className="flex h-[48px] w-full rounded-full border-2 border-neutral-100 bg-neutral-100 px-4 text-black placeholder-neutral-400 transition-all duration-100 hover:border-neutral-200 focus:border-black focus:bg-white focus:ring-0 focus:outline-0"
             />
             <div className="flex w-full flex-wrap gap-2">
               {filteredLists.map((list, index) => (
                 <Link
                   key={index}
                   href={`/lists/${list.id}`}
-                  className="block rounded-full border-2 border-sky-500 bg-sky-500 px-4 py-2 text-white transition-all duration-200 hover:border-sky-700 focus:border-black focus:ring-0 focus:outline-0"
+                  className="flex h-[48px] items-center justify-center rounded-full border-2 border-sky-500 bg-sky-500 px-4 text-white transition-all duration-100 hover:border-sky-700 focus:border-black focus:ring-0 focus:outline-0"
                 >
                   {list.name}
                 </Link>

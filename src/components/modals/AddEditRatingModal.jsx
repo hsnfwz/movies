@@ -1,7 +1,7 @@
 import { useState, useContext, useRef, useEffect } from 'react';
 import { ModalContext } from '@/contexts/ModalContextProvider';
 import { DataContext } from '@/contexts/DataContextProvider';
-import Modal from './Modal';
+import Modal from '@/components/Modal';
 
 function AddEditRatingModal({ handleSubmit, show, disabled }) {
   const { modal, setModal } = useContext(ModalContext);
@@ -44,7 +44,7 @@ function AddEditRatingModal({ handleSubmit, show, disabled }) {
             onClick={() => {
               setScore(number);
             }}
-            className={`cursor-pointer rounded-full border-2 px-4 py-2 transition-all duration-200 focus:border-black focus:ring-0 focus:outline-0 disabled:pointer-events-none disabled:opacity-50 ${score === number ? 'pointer-events-none bg-amber-500 text-white' : 'border-neutral-100 bg-neutral-100 text-black hover:border-neutral-200'}`}
+            className={`h-[48px] cursor-pointer rounded-full border-2 px-4 transition-all duration-100 focus:border-black focus:ring-0 focus:outline-0 disabled:pointer-events-none disabled:opacity-50 ${score === number ? 'pointer-events-none bg-amber-500 text-white' : 'border-neutral-100 bg-neutral-100 text-black hover:border-neutral-200'}`}
           >
             {number}
           </button>
@@ -59,7 +59,7 @@ function AddEditRatingModal({ handleSubmit, show, disabled }) {
             setScore(null);
             setModal({ action: '', data: null });
           }}
-          className="cursor-pointer rounded-full border-2 border-neutral-100 bg-neutral-100 px-4 py-2 text-black transition-all duration-200 hover:border-neutral-200 focus:border-black focus:ring-0 focus:outline-0 disabled:pointer-events-none disabled:opacity-50"
+          className="h-[48px] cursor-pointer rounded-full border-2 border-neutral-100 bg-neutral-100 px-4 text-black transition-all duration-100 hover:border-neutral-200 focus:border-black focus:ring-0 focus:outline-0 disabled:pointer-events-none disabled:opacity-50"
         >
           Cancel
         </button>
@@ -75,7 +75,7 @@ function AddEditRatingModal({ handleSubmit, show, disabled }) {
             await handleSubmit(score);
             setScore(null);
           }}
-          className="cursor-pointer rounded-full border-2 border-sky-500 bg-sky-500 px-4 py-2 text-white transition-all duration-200 hover:border-sky-700 focus:border-black focus:ring-0 focus:outline-0 disabled:pointer-events-none disabled:opacity-50"
+          className="h-[48px] cursor-pointer rounded-full border-2 border-sky-500 bg-sky-500 px-4 text-white transition-all duration-100 hover:border-sky-700 focus:border-black focus:ring-0 focus:outline-0 disabled:pointer-events-none disabled:opacity-50"
         >
           Submit
         </button>
