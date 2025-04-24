@@ -3,6 +3,8 @@ import { useState, useContext } from 'react';
 import Link from 'next/link';
 import { Star } from 'lucide-react';
 import { ModalContext } from '@/contexts/ModalContextProvider';
+import Button from '@/components/Button';
+
 
 function ScrollYCard({ movie }) {
   const { modal, setModal } = useContext(ModalContext);
@@ -62,15 +64,15 @@ function ScrollYCard({ movie }) {
                 </g>
               </svg>
             </Link>
-            <button
-              type="button"
-              onMouseDown={(event) => event.preventDefault()}
-              onClick={() =>
+            <Button
+              handleClick={() =>
                 setModal({
                   action: 'EDIT_MOVIE_RATING',
                   data: { movie },
                 })
               }
+              color="amber"
+              active={movie.rating}
               className={`flex h-[48px] w-[48px] cursor-pointer items-center justify-center self-end rounded-full border-2 border-amber-500 transition-all duration-100 hover:border-amber-700 focus:border-black focus:ring-0 focus:outline-0 ${movie.rating ? 'bg-amber-500' : 'bg-white'}`}
             >
               <Star
@@ -79,7 +81,7 @@ function ScrollYCard({ movie }) {
                   movie.rating ? 'white' : 'oklch(76.9% 0.188 70.08)'
                 }
               />
-            </button>
+            </Button>
           </div>
         </>
       )}

@@ -2,6 +2,7 @@
 import { useContext, useEffect, useRef } from 'react';
 import { X } from 'lucide-react';
 import { ModalContext } from '@/contexts/ModalContextProvider';
+import Button from '@/components/Button';
 
 function Modal({ children, disabled, show, handleReset }) {
   const { setModal } = useContext(ModalContext);
@@ -94,15 +95,15 @@ function Modal({ children, disabled, show, handleReset }) {
       onClick={handleModalClickOutside}
     >
       <div className="m-auto flex w-full flex-col gap-4 rounded-2xl bg-white p-4">
-        <button
-          type="button"
+        <Button
           disabled={disabled}
-          onClick={closeModal}
-          onMouseDown={(event) => event.preventDefault()}
-          className="flex h-[48px] w-[48px] cursor-pointer items-center justify-center self-end rounded-full border-2 border-neutral-100 bg-neutral-100 text-black transition-all duration-100 hover:border-neutral-200 focus:border-black focus:ring-0 focus:outline-0"
+          handleClick={closeModal}
+          rounded={true}
+          color="neutral"
+          className="self-end"
         >
           <X />
-        </button>
+        </Button>
         <div className="mx-auto flex h-full w-full max-w-[1024px] flex-col gap-8">
           {children}
         </div>

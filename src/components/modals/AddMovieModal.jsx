@@ -6,6 +6,8 @@ import { X } from "lucide-react";
 import SearchCard from '@/components/SearchCard';
 import useMovieSearch from "@/hooks/useMovieSearch";
 import Loading from "@/components/Loading";
+import Button from '@/components/Button';
+
 
 function AddMovieModal({ show, disabled, handleSubmit }) {
   const { modal, setModal } = useContext(ModalContext);
@@ -36,39 +38,37 @@ function AddMovieModal({ show, disabled, handleSubmit }) {
             onInput={(event) => setTitle(event.currentTarget.value)}
             className="flex h-[48px] w-full rounded-full border-2 border-neutral-100 bg-neutral-100 px-4 text-black transition-all duration-100 hover:border-neutral-200 focus:border-black focus:bg-white focus:ring-0 focus:outline-0"
           />
-          <button
-            type="button"
-            onMouseDown={(event) => event.preventDefault()}
-            onClick={async () => {
+          <Button
+            handleClick={async () => {
               setTitle('');
             }}
-            className={`flex aspect-square w-[48px] cursor-pointer items-center justify-center rounded-full border-2 border-rose-500 bg-rose-500 text-white transition-all duration-100 hover:border-rose-700 focus:border-black focus:ring-0 focus:outline-0 disabled:pointer-events-none disabled:opacity-50`}
             disabled={title.length === 0}
+            color="rose"
+            rounded={true}
           >
             <X />
-          </button>
+          </Button>
         </div>
 
         {Object.values(selectedMovies).length > 0 && (
-          <div className="flex flex-wrap gap-2 border-2 border-black rounded-xl p-2 border-dotted">
+          <div className="flex flex-col gap-2 border-2 border-black rounded-xl p-2 border-dotted">
             {Object.values(selectedMovies).map((movie, index) => (
               <div
                 key={index}
-                className="flex h-[48px] items-center gap-2 rounded-full bg-neutral-100 pr-2 pl-4"
+                className="flex items-center gap-2 rounded-full bg-neutral-100 w-full px-4 py-2"
               >
-                <span>{movie.title}</span>
-                <button
-                  type="button"
-                  onMouseDown={(event) => event.preventDefault()}
-                  onClick={() => {
+                <p className="w-full">{movie.title}</p>
+                <Button
+                  handleClick={() => {
                     const _selectedMovies = { ...selectedMovies };
                     delete _selectedMovies[movie.imdb_id];
                     setSelectedMovies(_selectedMovies);
                   }}
-                  className="flex h-[36px] w-[36px] cursor-pointer items-center justify-center rounded-full bg-neutral-200 text-black transition-all duration-100 hover:border-rose-500 hover:bg-rose-500 hover:text-white focus:border-black focus:ring-0 focus:outline-0"
+                  color="rose"
+                  rounded={true}
                 >
                   <X />
-                </button>
+                </Button>
               </div>
             ))}
           </div>
@@ -98,48 +98,42 @@ function AddMovieModal({ show, disabled, handleSubmit }) {
         {fetchingMovies && <Loading />}
 
         {!fetchingMovies && movies.length > 0 && (
-          <button
-            type="button"
-            onMouseDown={(event) => event.preventDefault()}
-            onClick={() => setPage(page + 1)}
-            className="h-[48px] cursor-pointer rounded-full border-2 border-neutral-100 bg-neutral-100 px-4 text-black transition-all duration-100 hover:border-neutral-200 focus:border-black focus:ring-0 focus:outline-0 disabled:pointer-events-none disabled:opacity-50"
+          <Button
+            handleClick={() => setPage(page + 1)}
             disabled={fetchingMovies}
+            color="neutral"
           >
             Show More
-          </button>
+          </Button>
         )}
       </div>
       <div className="flex gap-4 self-end">
-        <button
-          type="button"
+        <Button
           disabled={disabled}
-          onMouseDown={(event) => event.preventDefault()}
-          onClick={() => {
+          handleClick={() => {
             setSelectedMovies({});
             setTitle('');
             setPage(1);
             setModal({ action: '', data: null });
           }}
-          className="h-[48px] cursor-pointer rounded-full border-2 border-neutral-100 bg-neutral-100 px-4 text-black transition-all duration-100 hover:border-neutral-200 focus:border-black focus:ring-0 focus:outline-0 disabled:pointer-events-none disabled:opacity-50"
+          color="neutral"
         >
           Cancel
-        </button>
-        <button
-          type="button"
+        </Button>
+        <Button
           disabled={
             disabled || Object.keys(selectedMovies).length === 0
           }
-          onMouseDown={(event) => event.preventDefault()}
-          onClick={async () => {
+          handleClick={async () => {
             await handleSubmit(selectedMovies);
             setSelectedMovies({});
             setTitle('');
             setPage(1);
           }}
-          className="h-[48px] cursor-pointer rounded-full border-2 border-sky-500 bg-sky-500 px-4 text-white transition-all duration-100 hover:border-sky-700 focus:border-black focus:ring-0 focus:outline-0 disabled:pointer-events-none disabled:opacity-50"
+          color="sky"
         >
           Submit
-        </button>
+        </Button>
       </div>
     </Modal>
   );

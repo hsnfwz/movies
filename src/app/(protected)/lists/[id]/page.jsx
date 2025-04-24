@@ -8,6 +8,7 @@ import ScrollYGrid from '@/components/ScrollYGrid';
 import ScrollYCard from '@/components/ScrollYCard';
 import Loading from '@/components/Loading';
 import Empty from '@/components/Empty';
+import Button from '@/components/Button';
 
 function List() {
   const { id } = useParams();
@@ -102,16 +103,15 @@ function List() {
       <div className="flex w-full flex-col gap-4">
         <div className="flex w-full items-center gap-4">
           <h1>{lists[id].name}</h1>
-          <button
-            type="button"
-            onMouseDown={(event) => event.preventDefault()}
-            onClick={() =>
+          <Button
+            rounded={true}
+            handleClick={() =>
               setModal({ action: 'EDIT_LIST', data: { list: lists[id] } })
             }
-            className="ml-auto flex h-[48px] w-[48px] cursor-pointer items-center justify-center rounded-full border-2 border-sky-500 bg-sky-500 text-white transition-all duration-100 hover:border-sky-700 focus:border-black focus:ring-0 focus:outline-0"
+            color="sky"
           >
             <Pen />
-          </button>
+          </Button>
         </div>
         <input
           type="text"

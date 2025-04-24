@@ -6,6 +6,7 @@ import ScrollYCard from "@/components/ScrollYCard";
 import ScrollYGrid from "@/components/ScrollYGrid";
 import Loading from "@/components/Loading";
 import { ModalContext } from "@/contexts/ModalContextProvider";
+import Button from "@/components/Button";
 
 function Movies() {
   const { modal, setModal } = useContext(ModalContext);
@@ -76,21 +77,20 @@ function Movies() {
     return (
       <div className="flex w-full flex-col gap-4">
         <div className="flex w-full items-center gap-4">
-          <h1>
+          <h1 className="w-full">
             {Object.keys(moviesWithoutList).length === 0
               ? 'You do not have any movies yet'
               : 'My Movies'}
           </h1>
-          <button
-            type="button"
-            onMouseDown={(event) => event.preventDefault()}
-            onClick={() =>
+          <Button
+            handleClick={() =>
               setModal({ action: 'ADD_MOVIE' })
             }
-            className="ml-auto flex h-[48px] w-[48px] cursor-pointer items-center justify-center rounded-full border-2 border-sky-500 bg-sky-500 text-white transition-all duration-100 hover:border-sky-700 focus:border-black focus:ring-0 focus:outline-0"
+            rounded={true}
+            color="sky"
           >
             <Plus />
-          </button>
+          </Button>
         </div>
         {Object.keys(moviesWithoutList).length === 0 && (
           <p>Let's get you started by adding your first movie!</p>

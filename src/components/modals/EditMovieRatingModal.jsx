@@ -2,6 +2,7 @@ import { useState, useContext, useRef, useEffect } from 'react';
 import { ModalContext } from '@/contexts/ModalContextProvider';
 import { DataContext } from '@/contexts/DataContextProvider';
 import Modal from '@/components/Modal';
+import Button from '@/components/Button';
 
 function EditMovieRatingModal({ handleSubmit, show, disabled }) {
   const { modal, setModal } = useContext(ModalContext);
@@ -37,49 +38,44 @@ function EditMovieRatingModal({ handleSubmit, show, disabled }) {
       )}
       <div className="flex w-full flex-col gap-4">
         {numbers.map((number, index) => (
-          <button
+          <Button
             key={index}
-            type="button"
             disabled={rating === number}
-            onMouseDown={(event) => event.preventDefault()}
-            onClick={() => {
+            handleClick={() => {
               setRating(number);
             }}
-            className={`h-[48px] cursor-pointer rounded-full border-2 px-4 transition-all duration-100 focus:border-black focus:ring-0 focus:outline-0 disabled:pointer-events-none disabled:opacity-50 ${rating === number ? 'pointer-events-none bg-amber-500 text-white' : 'border-neutral-100 bg-neutral-100 text-black hover:border-neutral-200'}`}
+            active={rating === number}
+            color="amber"
           >
             {number}
-          </button>
+          </Button>
         ))}
       </div>
       <div className="flex gap-4 self-end">
-        <button
-          type="button"
+        <Button
           disabled={disabled}
-          onMouseDown={(event) => event.preventDefault()}
-          onClick={() => {
+          handleClick={() => {
             setRating(null);
             setModal({ action: '', data: null });
           }}
-          className="h-[48px] cursor-pointer rounded-full border-2 border-neutral-100 bg-neutral-100 px-4 text-black transition-all duration-100 hover:border-neutral-200 focus:border-black focus:ring-0 focus:outline-0 disabled:pointer-events-none disabled:opacity-50"
+          color="neutral"
         >
           Cancel
-        </button>
-        <button
-          type="button"
+        </Button>
+        <Button
           disabled={
             disabled ||
             !rating ||
             (modal.data.movie && modal.data.movie.rating === rating)
           }
-          onMouseDown={(event) => event.preventDefault()}
-          onClick={async () => {
+          handleClick={async () => {
             await handleSubmit(rating);
             setRating(null);
           }}
-          className="h-[48px] cursor-pointer rounded-full border-2 border-sky-500 bg-sky-500 px-4 text-white transition-all duration-100 hover:border-sky-700 focus:border-black focus:ring-0 focus:outline-0 disabled:pointer-events-none disabled:opacity-50"
+          color="sky"
         >
           Submit
-        </button>
+        </Button>
       </div>
     </Modal>
   );

@@ -5,6 +5,7 @@ import { Plus } from 'lucide-react';
 import { ModalContext } from '@/contexts/ModalContextProvider';
 import { DataContext } from '@/contexts/DataContextProvider';
 import Loading from '@/components/Loading';
+import Button from '@/components/Button';
 
 function Home() {
   const { modal, setModal } = useContext(ModalContext);
@@ -45,19 +46,18 @@ function Home() {
     return (
       <div className="flex w-full flex-col gap-4">
         <div className="flex w-full items-center gap-4">
-          <h1>
+          <h1 className="w-full">
             {Object.keys(lists).length === 0
               ? 'You do not have any lists yet'
               : 'My Lists'}
           </h1>
-          <button
-            type="button"
-            onMouseDown={(event) => event.preventDefault()}
-            onClick={() => setModal({ action: 'ADD_LIST' })}
-            className="ml-auto flex h-[48px] w-[48px] cursor-pointer items-center justify-center rounded-full border-2 border-sky-500 bg-sky-500 text-white transition-all duration-100 hover:border-sky-700 focus:border-black focus:ring-0 focus:outline-0"
+          <Button
+            handleClick={() => setModal({ action: 'ADD_LIST' })}
+            rounded={true}
+            color="sky"
           >
             <Plus />
-          </button>
+          </Button>
         </div>
 
         {Object.keys(lists).length === 0 && (
