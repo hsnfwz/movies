@@ -7,10 +7,48 @@ export async function GET(request) {
   if (!title || title.trim().length === 0 || !page || page === 0)
     return Response.json({ error: 'Please provide title and page.' });
 
-  const response = await fetch(
-    `http://www.omdbapi.com/?s=${title.trim()}*&page=${page}&type=movie&apikey=${process.env.OMDB_API_KEY}`
-  );
-  const { Search: movies } = await response.json();
+  const movies = [];
 
-  return Response.json({ movies: movies || [] });
+  const response = await fetch(
+    `https://api.themoviedb.org/3/search/movie?query=${title.trim()}&include_adult=false&language=en-US&page=${page}`,
+    {
+      method: 'GET',
+      headers: {
+        accept: 'application/json',
+        Authorization: `Bearer ${process.env.TMDB_API_READ_ACCESS_TOKEN}`,
+      },
+    }
+  );
+
+  const { results } = await response.json();
+
+  let i = 0;
+  while (i < results.length) {
+    const result = results[i];
+
+    const response = await fetch(
+      `https://api.themoviedb.org/3/movie/${results[i].id}/external_ids`,
+      {
+        method: 'GET',
+        headers: {
+          accept: 'application/json',
+          Authorization: `Bearer ${process.env.TMDB_API_READ_ACCESS_TOKEN}`,
+        },
+      }
+    );
+
+    const { imdb_id } = await response.json();
+
+    movies.push({
+      imdb_id,
+      id: result.id,
+      title: result.title,
+      year: result.release_date.split('-')[0],
+      poster_path: result.poster_path,
+    });
+
+    i++;
+  }
+
+  return Response.json({ movies });
 }

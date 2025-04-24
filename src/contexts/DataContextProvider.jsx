@@ -4,10 +4,8 @@ import { createContext, useState } from 'react';
 const DataContext = createContext({});
 
 function DataContextProvider({ children }) {
-  const [lists, setLists] = useState(null);
-  const [fetchingLists, setFetchingLists] = useState(true);
-  const [movies, setMovies] = useState({});
-  const [moviesWithoutList, setMoviesWithoutList] = useState(null);
+  const [lists, setLists] = useState({}); // { [listId]: { name, movies: [movieId, movieId, movieId] } }
+  const [movies, setMovies] = useState({}); // { [movieId]: { ... } }
 
   return (
     <DataContext.Provider
@@ -16,9 +14,6 @@ function DataContextProvider({ children }) {
         setLists,
         movies,
         setMovies,
-        fetchingLists,
-        setFetchingLists,
-        moviesWithoutList, setMoviesWithoutList,
       }}
     >
       {children}

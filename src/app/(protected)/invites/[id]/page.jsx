@@ -7,9 +7,6 @@ function Invite() {
   const { id } = useParams();
   const [loading, setLoading] = useState(true);
 
-  // TODO:
-  // check why modal has weird glitch after submission is done
-  // replace all border hovers with bg hovers instead
   /* 
     1. get the list_invite record based on id
     2. check if expired

@@ -9,7 +9,6 @@ import { Check, X } from 'lucide-react';
 import { useUser } from '@auth0/nextjs-auth0';
 import Button from '@/components/Button';
 
-
 function AddEditListModal({ handleSubmit, show, disabled }) {
   const { user, isLoading } = useUser();
   const { modal, setModal } = useContext(ModalContext);
@@ -18,7 +17,7 @@ function AddEditListModal({ handleSubmit, show, disabled }) {
 
   const [email, setEmail] = useState('');
   const [emailMessage, setEmailMessage] = useState(null);
-  const [listName, setListName] = useState('');
+  const [name, setName] = useState('');
   const [listUsers, setListUsers] = useState({});
   const [listMovies, setListMovies] = useState({});
 
@@ -30,7 +29,7 @@ function AddEditListModal({ handleSubmit, show, disabled }) {
 
   useEffect(() => {
     if (modal.data && modal.data.list) {
-      setListName(modal.data.list.name);
+      setName(modal.data.list.name);
     }
   }, [modal]);
 
@@ -38,7 +37,7 @@ function AddEditListModal({ handleSubmit, show, disabled }) {
     <Modal
       show={show}
       handleReset={() => {
-        setListName('');
+        setName('');
         setListUsers({});
         setListMovies({});
         setTitle('');
@@ -53,13 +52,15 @@ function AddEditListModal({ handleSubmit, show, disabled }) {
         <label>* Name</label>
         <input
           type="text"
-          value={listName}
-          onInput={(event) => setListName(event.currentTarget.value)}
+          value={name}
+          onInput={(event) => setName(event.currentTarget.value)}
           className="flex h-[48px] rounded-full border-2 border-neutral-100 bg-neutral-100 px-4 text-black transition-all duration-100 hover:border-neutral-200 focus:border-black focus:bg-white focus:ring-0 focus:outline-0"
         />
       </div>
       <div className="flex flex-col gap-4">
-        <label className={`${emailMessage ? 'text-rose-500' : ''}`}>Search and Add User(s) By Email</label>
+        <label className={`${emailMessage ? 'text-rose-500' : ''}`}>
+          Search and Add Users By Email
+        </label>
         <div className="flex w-full items-center gap-2">
           <input
             type="text"
@@ -87,7 +88,10 @@ function AddEditListModal({ handleSubmit, show, disabled }) {
                 setEmailMessage('You are already in this list.');
               } else {
                 const _listUsers = { ...listUsers };
-                _listUsers[email] = { user_id: users[0].user_id, email: users[0].email };
+                _listUsers[email] = {
+                  user_id: users[0].user_id,
+                  email: users[0].email,
+                };
                 setListUsers(_listUsers);
                 setEmail('');
               }
@@ -103,11 +107,11 @@ function AddEditListModal({ handleSubmit, show, disabled }) {
           <p className="text-xs text-rose-500">{emailMessage}</p>
         )}
         {Object.values(listUsers).length > 0 && (
-          <div className="flex gap-2 border-2 border-black rounded-xl p-2 border-dotted">
+          <div className="flex flex-col gap-2 rounded-xl border-2 border-dotted border-black p-2">
             {Object.values(listUsers).map((listUser, index) => (
               <div
                 key={index}
-                className="flex items-center gap-2 rounded-full bg-neutral-100 w-full px-4 py-2"
+                className="flex w-full items-center gap-2 rounded-full bg-neutral-100 px-4 py-2"
               >
                 <p className="w-full">{listUser.email}</p>
                 <Button
@@ -127,7 +131,7 @@ function AddEditListModal({ handleSubmit, show, disabled }) {
         )}
       </div>
       <div className="flex flex-col gap-4">
-        <label>* Search and Add Movie(s) by Title</label>
+        <label>Search and Add Movies by Title</label>
         <div className="flex w-full items-center gap-2">
           <input
             type="text"
@@ -148,11 +152,11 @@ function AddEditListModal({ handleSubmit, show, disabled }) {
         </div>
 
         {Object.values(listMovies).length > 0 && (
-          <div className="flex gap-2 border-2 border-black rounded-xl p-2 border-dotted">
+          <div className="flex flex-col gap-2 rounded-xl border-2 border-dotted border-black p-2">
             {Object.values(listMovies).map((movie, index) => (
               <div
                 key={index}
-                className="flex items-center gap-2 rounded-full bg-neutral-100 w-full px-4 py-2"
+                className="flex w-full items-center gap-2 rounded-full bg-neutral-100 px-4 py-2"
               >
                 <p className="w-full">{movie.title}</p>
                 <Button
@@ -176,15 +180,11 @@ function AddEditListModal({ handleSubmit, show, disabled }) {
               <SearchCard
                 key={index}
                 movie={movie}
-                disabled={listMovies[movie.imdbID]}
+                disabled={listMovies[movie.imdb_id]}
                 handleSelect={() => {
-                  if (!listMovies[movie.imdbID]) {
+                  if (!listMovies[movie.imdb_id]) {
                     const _listMovies = { ...listMovies };
-                    _listMovies[movie.imdbID] = {
-                      title: movie.Title,
-                      poster: movie.Poster,
-                      imdb_id: movie.imdbID,
-                    };
+                    _listMovies[movie.imdb_id] = movie;
                     setListMovies(_listMovies);
                   }
                 }}
@@ -208,7 +208,7 @@ function AddEditListModal({ handleSubmit, show, disabled }) {
         <Button
           disabled={disabled}
           handleClick={() => {
-            setListName('');
+            setName('');
             setListUsers({});
             setListMovies({});
             setTitle('');
@@ -220,13 +220,10 @@ function AddEditListModal({ handleSubmit, show, disabled }) {
           Cancel
         </Button>
         <Button
-          disabled={
-            listName.length === 0 ||
-            disabled
-          }
+          disabled={name.length === 0 || disabled}
           handleClick={async () => {
-            await handleSubmit(listName, listUsers, listMovies);
-            setListName('');
+            await handleSubmit(name, listUsers, listMovies);
+            setName('');
             setListUsers({});
             setListMovies({});
             setTitle('');

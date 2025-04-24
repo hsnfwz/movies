@@ -1,13 +1,12 @@
 'use client';
-import { useContext, useState } from "react";
+import { useContext, useState } from 'react';
 import Modal from '@/components/Modal';
-import { ModalContext } from "@/contexts/ModalContextProvider";
-import { X } from "lucide-react";
+import { ModalContext } from '@/contexts/ModalContextProvider';
+import { X } from 'lucide-react';
 import SearchCard from '@/components/SearchCard';
-import useMovieSearch from "@/hooks/useMovieSearch";
-import Loading from "@/components/Loading";
+import useMovieSearch from '@/hooks/useMovieSearch';
+import Loading from '@/components/Loading';
 import Button from '@/components/Button';
-
 
 function AddMovieModal({ show, disabled, handleSubmit }) {
   const { modal, setModal } = useContext(ModalContext);
@@ -25,12 +24,10 @@ function AddMovieModal({ show, disabled, handleSubmit }) {
       }}
       disabled={disabled}
     >
-      <h1 className="text-center">
-        Add Movie
-      </h1>
-      
+      <h1 className="text-center">Add Movie</h1>
+
       <div className="flex flex-col gap-4">
-        <label>* Search and Add Movie(s) by Title</label>
+        <label>Search and Add Movies by Title</label>
         <div className="flex w-full items-center gap-2">
           <input
             type="text"
@@ -51,11 +48,11 @@ function AddMovieModal({ show, disabled, handleSubmit }) {
         </div>
 
         {Object.values(selectedMovies).length > 0 && (
-          <div className="flex flex-col gap-2 border-2 border-black rounded-xl p-2 border-dotted">
+          <div className="flex flex-col gap-2 rounded-xl border-2 border-dotted border-black p-2">
             {Object.values(selectedMovies).map((movie, index) => (
               <div
                 key={index}
-                className="flex items-center gap-2 rounded-full bg-neutral-100 w-full px-4 py-2"
+                className="flex w-full items-center gap-2 rounded-full bg-neutral-100 px-4 py-2"
               >
                 <p className="w-full">{movie.title}</p>
                 <Button
@@ -79,15 +76,11 @@ function AddMovieModal({ show, disabled, handleSubmit }) {
               <SearchCard
                 key={index}
                 movie={movie}
-                disabled={selectedMovies[movie.imdbID]}
+                disabled={selectedMovies[movie.imdb_id]}
                 handleSelect={() => {
-                  if (!selectedMovies[movie.imdbID]) {
+                  if (!selectedMovies[movie.imdb_id]) {
                     const _selectedMovies = { ...selectedMovies };
-                    _selectedMovies[movie.imdbID] = {
-                      title: movie.Title,
-                      poster: movie.Poster,
-                      imdb_id: movie.imdbID,
-                    };
+                    _selectedMovies[movie.imdb_id] = movie;
                     setSelectedMovies(_selectedMovies);
                   }
                 }}
@@ -121,9 +114,7 @@ function AddMovieModal({ show, disabled, handleSubmit }) {
           Cancel
         </Button>
         <Button
-          disabled={
-            disabled || Object.keys(selectedMovies).length === 0
-          }
+          disabled={disabled || Object.keys(selectedMovies).length === 0}
           handleClick={async () => {
             await handleSubmit(selectedMovies);
             setSelectedMovies({});

@@ -13,15 +13,9 @@ import Button from '@/components/Button';
 function List() {
   const { id } = useParams();
   const { modal, setModal } = useContext(ModalContext);
-  const {
-    lists,
-    setLists,
-    movies,
-    setMovies,
-    fetchingLists,
-  } = useContext(DataContext);
+  const { lists, setLists, movies, setMovies } = useContext(DataContext);
   const [fetchingData, setFetchingData] = useState(true);
-  const [filteredMovies, setFilteredMovies] = useState([]);
+  const [filteredMovieIds, setFilteredMovieIds] = useState([]);
 
   const searchTimerRef = useRef();
   const [title, setTitle] = useState('');
@@ -33,62 +27,52 @@ function List() {
     clearTimeout(searchTimerRef.current);
     searchTimerRef.current = setTimeout(() => {
       if (_title.length === 0) {
-        const _filteredMovies = Object.values(movies[id]).filter(
-          (listMovie) => listMovie.list_id == id
-        );
-        setFilteredMovies(_filteredMovies);
+        setFilteredMovieIds(lists[id].movieIds);
       } else {
-        const _filteredMovies = Object.values(movies[id]).filter(
-          (movie) =>
-            movie.list_id == id &&
-            movie.title.toLowerCase().includes(_title.trim().toLowerCase())
+        const _filteredMovieIds = lists[id].movieIds.filter((movieId) =>
+          movies[movieId].title
+            .toLowerCase()
+            .includes(_title.trim().toLowerCase())
         );
-        setFilteredMovies(_filteredMovies);
+        setFilteredMovieIds(_filteredMovieIds);
       }
     }, 500);
   }
 
   useEffect(() => {
     async function fetchData() {
-      if (!fetchingLists) {
-        if (!lists[id] || !movies[id]) {
-          const response = await fetch(`/api/lists/${id}`);
-          const { list, listMovies, error } =
-            await response.json();
+      if (Object.keys(lists).length === 0 || !lists[id] || !lists[id].movies) {
+        const response = await fetch(`/api/lists/${id}`);
+        const { list, listMovies, error } = await response.json();
 
-          if (error) {
-            setFetchingData(false);
-            return console.log(error);
-          }
-
-          const _listMovies = { [id]: {} };
-          listMovies.forEach((movie) => {
-            _listMovies[id][movie.movie_id] = movie;
-          });
-
-          setMovies({ ...movies, ..._listMovies });
-          setLists({ ...lists, [id]: list });
-        } else {
-          const _filteredMovies = Object.values(movies[id]).filter(
-            (listMovie) => listMovie.list_id == id
-          );
-          setFilteredMovies(_filteredMovies);
+        if (error) {
+          setFetchingData(false);
+          return console.log(error);
         }
+
+        const _listMovies = {};
+        listMovies.forEach((movie) => {
+          _listMovies[movie.id] = movie;
+        });
+        setMovies({ ...movies, ..._listMovies });
+
+        const ids = listMovies.map((listMovie) => listMovie.id);
+        setLists({ ...lists, [id]: { ...list, movieIds: ids } });
+        setFilteredMovieIds(ids);
+      } else {
+        setFilteredMovieIds(lists[id].movieIds);
       }
       setFetchingData(false);
     }
 
     fetchData();
-  }, [fetchingLists]);
+  }, []);
 
   useEffect(() => {
-    if (!fetchingData && movies) {
-      const _filteredMovies = Object.values(movies[id]).filter(
-        (listMovie) => listMovie.list_id == id
-      );
-      setFilteredMovies(_filteredMovies);
+    if (!fetchingData) {
+      setFilteredMovieIds(lists[id].movieIds);
     }
-  }, [movies]);
+  }, [fetchingData, lists]);
 
   if (fetchingData) {
     return <Loading />;
@@ -102,7 +86,7 @@ function List() {
     return (
       <div className="flex w-full flex-col gap-4">
         <div className="flex w-full items-center gap-4">
-          <h1>{lists[id].name}</h1>
+          <h1 className="w-full">{lists[id].name}</h1>
           <Button
             rounded={true}
             handleClick={() =>
@@ -121,8 +105,8 @@ function List() {
           className="flex h-[48px] w-full rounded-full border-2 border-neutral-100 bg-neutral-100 px-4 text-black placeholder-neutral-400 transition-all duration-100 hover:border-neutral-200 focus:border-black focus:bg-white focus:ring-0 focus:outline-0"
         />
         <ScrollYGrid>
-          {filteredMovies.map((movie, index) => (
-            <ScrollYCard key={index} movie={movie} />
+          {filteredMovieIds.map((movieId, index) => (
+            <ScrollYCard key={index} movie={movies[movieId]} />
           ))}
         </ScrollYGrid>
       </div>

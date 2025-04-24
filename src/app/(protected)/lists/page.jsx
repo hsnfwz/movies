@@ -9,10 +9,10 @@ import Button from '@/components/Button';
 
 function Home() {
   const { modal, setModal } = useContext(ModalContext);
-  const { lists, fetchingLists } = useContext(DataContext);
+  const { lists, setLists } = useContext(DataContext);
   const searchTimerRef = useRef();
   const [name, setName] = useState('');
-
+  const [fetchingLists, setFetchingLists] = useState(true);
   const [filteredLists, setFilteredLists] = useState([]);
 
   function handleSearch(event) {
@@ -31,6 +31,27 @@ function Home() {
       }
     }, 500);
   }
+
+  useEffect(() => {
+    async function fetchData() {
+      if (Object.keys(lists).length === 0) {
+        const response = await fetch('/api/lists');
+        const { lists: myLists, error } = await response.json();
+
+        if (error) return console.log(error);
+
+        const _lists = {};
+        myLists.forEach((list) => (_lists[list.id] = list));
+
+        setLists(_lists);
+      } else {
+        setFilteredLists(Object.values(lists));
+      }
+      setFetchingLists(false);
+    }
+
+    fetchData();
+  }, []);
 
   useEffect(() => {
     if (!fetchingLists) {

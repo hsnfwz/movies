@@ -6,7 +6,7 @@ import Button from '@/components/Button';
 
 function EditMovieRatingModal({ handleSubmit, show, disabled }) {
   const { modal, setModal } = useContext(ModalContext);
-  const { moviesWithoutList } = useContext(DataContext);
+  const { movies } = useContext(DataContext);
   const [rating, setRating] = useState(null);
 
   const numbers = Array.from({ length: 101 }, (_, i) =>
@@ -32,9 +32,7 @@ function EditMovieRatingModal({ handleSubmit, show, disabled }) {
       )}
 
       {modal.data && modal.data.movie && (
-        <h2 className="text-center">
-          {moviesWithoutList[modal.data.movie.id].title}
-        </h2>
+        <h2 className="text-center">{movies[modal.data.movie.id].title}</h2>
       )}
       <div className="flex w-full flex-col gap-4">
         {numbers.map((number, index) => (
@@ -45,7 +43,8 @@ function EditMovieRatingModal({ handleSubmit, show, disabled }) {
               setRating(number);
             }}
             active={rating === number}
-            color="amber"
+            color="neutral"
+            activeColor="amber"
           >
             {number}
           </Button>

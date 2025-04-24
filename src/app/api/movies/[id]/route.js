@@ -1,5 +1,5 @@
-import { auth0 } from "@/lib/auth0";
-import { pool } from "@/lib/pg";
+import { auth0 } from '@/lib/auth0';
+import { pool } from '@/lib/pg';
 
 export async function PUT(request, { params }) {
   const { user } = await auth0.getSession();

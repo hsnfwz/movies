@@ -13,34 +13,188 @@ import Nav from '@/components/Nav';
 function ProtectedLayout({ children }) {
   const { user, isLoading } = useUser();
   const { modal, setModal } = useContext(ModalContext);
-  const {
-    lists,
-    setLists,
-    movies,
-    setMovies,
-    setFetchingLists,
-    moviesWithoutList, setMoviesWithoutList,
-  } = useContext(DataContext);
+  const { lists, setLists, movies, setMovies } = useContext(DataContext);
   const [submitting, setSubmitting] = useState(false);
 
-  useEffect(() => {
-    async function fetchData() {
-      if (!lists) {
-        const response = await fetch('/api/lists');
-        const { lists: userLists, error } = await response.json();
+  async function handleAddList(name, listUsers, listMovies) {
+    setSubmitting(true);
 
-        if (error) return console.log(error);
+    const promises = [];
 
-        const _lists = {};
-        userLists.forEach((list) => (_lists[list.id] = list));
+    promises.push(
+      fetch('/api/lists', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          name,
+        }),
+      })
+    );
 
-        setLists(_lists);
-      }
-      setFetchingLists(false);
+    if (Object.keys(listMovies).length > 0) {
+      promises.push(
+        fetch('/api/movies', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            movies: Object.values(listMovies),
+          }),
+        })
+      );
     }
 
-    fetchData();
-  }, []);
+    const responses = await Promise.all(promises);
+
+    const { list, error: listError } = await responses[0].json();
+    if (listError) return console.log(listError);
+
+    let addedMovies = [];
+    if (Object.keys(listMovies).length > 0) {
+      const result = await responses[1].json();
+      if (result.error) return console.log(result.error);
+      addedMovies = result.movies;
+      const _movies = { ...movies };
+      addedMovies.forEach(
+        (addedMovie) => (_movies[addedMovie.id] = addedMovie)
+      );
+      setMovies(_movies);
+    }
+
+    if (addedMovies.length > 0) {
+      const response = await fetch('/api/list-movies', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          listId: list.id,
+          movies: addedMovies,
+        }),
+      });
+
+      const { error } = await response.json();
+      if (error) return console.log(error);
+    }
+
+    const ids = addedMovies.map((addedMovie) => addedMovie.id);
+    const _lists = { ...lists, [list.id]: { ...list, movieIds: ids } };
+    setLists(_lists);
+
+    if (Object.keys(listUsers).length > 0) {
+      const response = await fetch('/api/invites', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          listId: list.id,
+          users: Object.values(listUsers),
+        }),
+      });
+
+      const { error } = await response.json();
+      if (error) return console.log(error);
+    }
+
+    setSubmitting(false);
+    setModal({ action: '', data: null });
+  }
+
+  async function handleEditList(name, listUsers, listMovies) {
+    setSubmitting(true);
+
+    const promises = [];
+
+    promises.push(
+      fetch(`/api/lists/${modal.data.list.id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          name,
+        }),
+      })
+    );
+
+    if (Object.keys(listMovies).length > 0) {
+      promises.push(
+        fetch('/api/movies', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            movies: Object.values(listMovies),
+          }),
+        })
+      );
+    }
+
+    const responses = await Promise.all(promises);
+
+    const { list, error: listError } = await responses[0].json();
+    if (listError) return console.log(listError);
+
+    let addedMovies = [];
+    if (Object.keys(listMovies).length > 0) {
+      const result = await responses[1].json();
+      if (result.error) return console.log(result.error);
+      addedMovies = result.movies;
+      const _movies = { ...movies };
+      addedMovies.forEach(
+        (addedMovie) => (_movies[addedMovie.id] = addedMovie)
+      );
+      setMovies(_movies);
+    }
+
+    if (addedMovies.length > 0) {
+      const response = await fetch('/api/list-movies', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          listId: list.id,
+          movies: addedMovies,
+        }),
+      });
+
+      const { error } = await response.json();
+      if (error) return console.log(error);
+    }
+
+    const _list = { ...list };
+    if (addedMovies.length > 0) {
+      const ids = addedMovies.map((addedMovie) => addedMovie.id);
+      _list.movieIds = [...lists[list.id].movieIds, ...ids];
+    }
+    const _lists = { ...lists, [list.id]: _list };
+    setLists(_lists);
+
+    if (Object.keys(listUsers).length > 0) {
+      const response = await fetch('/api/invites', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          listId: list.id,
+          users: Object.values(listUsers),
+        }),
+      });
+
+      const { error } = await response.json();
+      if (error) return console.log(error);
+    }
+
+    setSubmitting(false);
+    setModal({ action: '', data: null });
+  }
 
   async function handleAddMovie(selectedMovies) {
     setSubmitting(true);
@@ -55,106 +209,14 @@ function ProtectedLayout({ children }) {
       }),
     });
 
-    const { movies, error } = await response.json();
+    const { movies: addedMovies, error } = await response.json();
 
     if (error) return console.log(error);
 
     const _movies = {};
-    movies.forEach((movie) => _movies[movie.id] = movie);
+    addedMovies.forEach((movie) => (_movies[movie.id] = movie));
 
-    setMoviesWithoutList({ ...moviesWithoutList, ..._movies });
-
-    setSubmitting(false);
-    setModal({ action: '', data: null });
-  }
-
-  async function handleAddList(listName, listUsers, listMovies) {
-    setSubmitting(true);
-
-    const response = await fetch('/api/lists', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        listName,
-        listMovies,
-      }),
-    });
-
-    const { list, error } = await response.json();
-
-    if (error) return console.log(error);
-    
-    if (Object.keys(listUsers).length > 0) {
-      const response = await fetch('/api/invites', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          listId: list.id,
-          listUsers,
-        }),
-      });
-  
-      const { message, error } = await response.json();
-  
-      if (error) return console.log(error);
-    }
-
-    const _lists = { ...lists, [list.id]: list };
-    setLists(_lists);
-
-    setSubmitting(false);
-    setModal({ action: '', data: null });
-  }
-
-  async function handleEditList(listName, listUsers, listMovies) {
-    setSubmitting(true);
-
-    const response = await fetch('/api/lists', {
-      method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        listName,
-        listId: modal.data.list.id,
-        listMovies,
-      }),
-    });
-
-    const { list, addedMovies, error } = await response.json();
-
-    if (error) return console.log(error);
-
-    if (Object.keys(listUsers).length > 0) {
-      const response = await fetch('/api/invites', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          listId: modal.data.list.id,
-          listUsers,
-        }),
-      });
-  
-      const { message, error } = await response.json();
-  
-      if (error) return console.log(error);
-    }
-
-    const _lists = { ...lists, [list.id]: list };
-
-    const _listMovies = { ...movies[modal.data.list.id] };
-    addedMovies.forEach((movie) => {
-      _listMovies[movie.id] = movie;
-    });
-
-    setLists(_lists);
-    setMovies({ ...movies, [modal.data.list.id]: _listMovies });
+    setMovies({ ...movies, ..._movies });
 
     setSubmitting(false);
     setModal({ action: '', data: null });
@@ -177,8 +239,11 @@ function ProtectedLayout({ children }) {
 
     if (error) return console.log(error);
 
-    const _movies = { ...moviesWithoutList, [movie.id]: { ...moviesWithoutList[movie.id], rating: movie.rating }};
-    setMoviesWithoutList({ ...moviesWithoutList, ..._movies });
+    const _movies = {
+      ...movies,
+      [movie.id]: { ...movies[movie.id], rating: movie.rating },
+    };
+    setMovies({ ...movies, ..._movies });
 
     setSubmitting(false);
     setModal({ action: '', data: null });
@@ -194,7 +259,7 @@ function ProtectedLayout({ children }) {
 
   if (!isLoading && user) {
     return (
-      <div className="flex flex-col gap-4 w-full">
+      <div className="flex w-full flex-col gap-4">
         <Nav />
         <AddMovieModal
           handleSubmit={async (selectedMovies) => {
