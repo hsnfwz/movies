@@ -1,9 +1,9 @@
 export async function GET(request) {
   const searchParams = request.nextUrl.searchParams;
 
-  const email = searchParams.get('email');
+  const username = searchParams.get('username');
 
-  if (!email) return Response.json({ error: 'Email required.' });
+  if (!username) return Response.json({ error: '[username] required.' });
 
   const res = await fetch(`https://${process.env.AUTH0_DOMAIN}/oauth/token`, {
     method: 'POST',
@@ -21,7 +21,7 @@ export async function GET(request) {
   const { access_token } = await res.json();
 
   const response = await fetch(
-    `https://${process.env.AUTH0_DOMAIN}/api/v2/users-by-email?email=${email}`,
+    `https://${process.env.AUTH0_DOMAIN}/api/v2/users?q=username:*${username}*&search_engine=v3`,
     {
       method: 'GET',
       headers: {
@@ -30,6 +30,7 @@ export async function GET(request) {
       },
     }
   );
+
   const users = await response.json();
 
   return Response.json({ users });

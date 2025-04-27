@@ -38,24 +38,25 @@ function AddMovieModal({ showModal, setShowModal, myMovies, setMyMovies }) {
 
     const _myMovies = { ...myMovies };
 
-    userAddedMovies.forEach(movie => (
-      _myMovies[movie.movie_id] = {
-        movie_id: movie.movie_id,
-        imdb_id: movie.imdb_id,
-        tmdb_id: movie.tmdb_id,
-        poster_path: movie.poster_path,
-        title: movie.title,
-        year: movie.year,
-        users: {
-          [movie.user_added_movie_auth0_user_id]: {
-            user_added_movie_id: movie.user_added_movie_id,
-            user_added_movie_rating: movie.user_added_movie_rating,
-            user_added_movie_auth0_user_id:
-              movie.user_added_movie_auth0_user_id,
+    userAddedMovies.forEach(
+      (movie) =>
+        (_myMovies[movie.movie_id] = {
+          movie_id: movie.movie_id,
+          imdb_id: movie.imdb_id,
+          tmdb_id: movie.tmdb_id,
+          poster_path: movie.poster_path,
+          title: movie.title,
+          year: movie.year,
+          users: {
+            [movie.user_added_movie_auth0_user_id]: {
+              user_added_movie_id: movie.user_added_movie_id,
+              user_added_movie_rating: movie.user_added_movie_rating,
+              user_added_movie_auth0_user_id:
+                movie.user_added_movie_auth0_user_id,
+            },
           },
-        },
-      }
-    ));
+        })
+    );
 
     setMyMovies(_myMovies);
 
@@ -85,31 +86,27 @@ function AddMovieModal({ showModal, setShowModal, myMovies, setMyMovies }) {
           <Button
             handleClick={() => setSearchTitle('')}
             disabled={searchTitle.length === 0}
-            color="rose"
+            color="neutral"
           >
             Clear
           </Button>
         </div>
         {Object.values(selectedMovies).length > 0 && (
-          <div className="flex flex-col gap-2 rounded-xl border-2 border-dotted border-black p-2">
+          <div className="flex flex-wrap gap-2">
             {Object.values(selectedMovies).map((movie, index) => (
-              <div
+              <Button
                 key={index}
-                className="flex w-full items-center gap-2 rounded-full bg-neutral-100 px-4 py-2"
+                handleClick={() => {
+                  const _selectedMovies = { ...selectedMovies };
+                  delete _selectedMovies[movie.imdb_id];
+                  setSelectedMovies(_selectedMovies);
+                }}
+                color="sky"
+                className="self-start gap-2"
               >
-                <p className="w-full">{movie.title}</p>
-                <Button
-                  handleClick={() => {
-                    const _selectedMovies = { ...selectedMovies };
-                    delete _selectedMovies[movie.imdb_id];
-                    setSelectedMovies(_selectedMovies);
-                  }}
-                  color="rose"
-                  rounded={true}
-                >
-                  <X />
-                </Button>
-              </div>
+                <X />
+                <span>{movie.title}</span>
+              </Button>
             ))}
           </div>
         )}

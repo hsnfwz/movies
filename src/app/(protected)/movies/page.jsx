@@ -49,54 +49,52 @@ function Movies() {
 
   useEffect(() => {
     async function fetchData() {
-        const { rows: userAddedMovies } = await getData(
-          '/api/user-added-movies'
-        );
+      const { rows: userAddedMovies } = await getData('/api/user-added-movies');
 
-        const _myMovies = {};
+      const _myMovies = {};
 
-        userAddedMovies.forEach((movie) => {
-          if (_myMovies[movie.movie_id]) {
-            _myMovies[movie.movie_id].users[
-              movie.user_added_movie_auth0_user_id
-            ] = {
-              user_added_movie_id: movie.user_added_movie_id,
-              user_added_movie_rating: movie.user_added_movie_rating,
-              user_added_movie_auth0_user_id:
-                movie.user_added_movie_auth0_user_id,
-            };
-          } else {
-            _myMovies[movie.movie_id] = {
-              movie_id: movie.movie_id,
-              imdb_id: movie.imdb_id,
-              tmdb_id: movie.tmdb_id,
-              poster_path: movie.poster_path,
-              title: movie.title,
-              year: movie.year,
-              users: {
-                [movie.user_added_movie_auth0_user_id]: {
-                  user_added_movie_id: movie.user_added_movie_id,
-                  user_added_movie_rating: movie.user_added_movie_rating,
-                  user_added_movie_auth0_user_id:
-                    movie.user_added_movie_auth0_user_id,
-                },
+      userAddedMovies.forEach((movie) => {
+        if (_myMovies[movie.movie_id]) {
+          _myMovies[movie.movie_id].users[
+            movie.user_added_movie_auth0_user_id
+          ] = {
+            user_added_movie_id: movie.user_added_movie_id,
+            user_added_movie_rating: movie.user_added_movie_rating,
+            user_added_movie_auth0_user_id:
+              movie.user_added_movie_auth0_user_id,
+          };
+        } else {
+          _myMovies[movie.movie_id] = {
+            movie_id: movie.movie_id,
+            imdb_id: movie.imdb_id,
+            tmdb_id: movie.tmdb_id,
+            poster_path: movie.poster_path,
+            title: movie.title,
+            year: movie.year,
+            users: {
+              [movie.user_added_movie_auth0_user_id]: {
+                user_added_movie_id: movie.user_added_movie_id,
+                user_added_movie_rating: movie.user_added_movie_rating,
+                user_added_movie_auth0_user_id:
+                  movie.user_added_movie_auth0_user_id,
               },
-            };
-          }
-        });
+            },
+          };
+        }
+      });
 
-        setMyMovies(_myMovies);
+      setMyMovies(_myMovies);
 
-        const _filteredMovies = Object.values(_myMovies).sort((m1, m2) => {
-          if (m1.title < m2.title) {
-            return -1;
-          }
-          if (m1.title > m2.title) {
-            return 1;
-          }
-          return 0;
-        });
-        setFilteredMovies(_filteredMovies);
+      const _filteredMovies = Object.values(_myMovies).sort((m1, m2) => {
+        if (m1.title < m2.title) {
+          return -1;
+        }
+        if (m1.title > m2.title) {
+          return 1;
+        }
+        return 0;
+      });
+      setFilteredMovies(_filteredMovies);
       setIsFetching(false);
     }
 
@@ -126,11 +124,20 @@ function Movies() {
     return (
       <>
         {showMovieDetailsModal && (
-          <MovieDetailsModal showModal={showMovieDetailsModal} setShowModal={setShowMovieDetailsModal}             selectedMovie={selectedMovie}
-          setSelectedMovie={setSelectedMovie} />
+          <MovieDetailsModal
+            showModal={showMovieDetailsModal}
+            setShowModal={setShowMovieDetailsModal}
+            selectedMovie={selectedMovie}
+            setSelectedMovie={setSelectedMovie}
+          />
         )}
         {showAddMovieModal && (
-          <AddMovieModal showModal={showAddMovieModal} setShowModal={setShowAddMovieModal} myMovies={myMovies} setMyMovies={setMyMovies} />
+          <AddMovieModal
+            showModal={showAddMovieModal}
+            setShowModal={setShowAddMovieModal}
+            myMovies={myMovies}
+            setMyMovies={setMyMovies}
+          />
         )}
         {showEditMovieModal && selectedMovie && (
           <EditMovieRatingModal

@@ -6,7 +6,12 @@ import Button from '@/components/Button';
 import { useUser } from '@auth0/nextjs-auth0';
 import { usePathname } from 'next/navigation';
 
-function ScrollYCard({ movie, setShowEditMovieModal, setShowMovieDetailsModal, setSelectedMovie }) {
+function ScrollYCard({
+  movie,
+  setShowEditMovieModal,
+  setShowMovieDetailsModal,
+  setSelectedMovie,
+}) {
   const pathname = usePathname();
   const { user } = useUser();
   const [overallRating, setOverallRating] = useState(-1);
@@ -32,12 +37,12 @@ function ScrollYCard({ movie, setShowEditMovieModal, setShowMovieDetailsModal, s
     }
 
     if (count > 0) {
-      const average = +((sum / count).toFixed(1));
+      const average = +(sum / count).toFixed(1);
       setOverallRating(average);
     }
     setOverallRatingCount(count);
   }, [movie]);
-  
+
   const [loadingImage, setLoadingImage] = useState(true);
 
   return (
@@ -68,72 +73,86 @@ function ScrollYCard({ movie, setShowEditMovieModal, setShowMovieDetailsModal, s
         <>
           <div className="flex flex-col gap-4 rounded-xl bg-neutral-100 p-4">
             <div className="flex flex-col gap-2">
-            <h2 className="font-bold">{movie.title}</h2>
-            <p>{movie.year}</p>
-            {movie.imdb_id && (
-              <div className="flex gap-2 flex-wrap">
-                <Link
-                  onMouseDown={(event) => event.preventDefault()}
-                  className="inline self-start underline hover:text-sky-500 focus:text-sky-500 focus:ring-0 focus:outline-0"
-                  href={`https://www.imdb.com/title/${movie.imdb_id}`}
-                  target="_blank"
-                >
-                  IMDb
-                </Link>
-                &#183;
-                <Link
-                  onMouseDown={(event) => event.preventDefault()}
-                  className="inline self-start underline hover:text-sky-500 focus:text-sky-500 focus:ring-0 focus:outline-0"
-                  href={`https://letterboxd.com/imdb/${movie.imdb_id}`}
-                  target="_blank"
-                >
-                  Letterboxd
-                </Link>
-              </div>
-            )}
+              <h2 className="font-bold">{movie.title}</h2>
+              <p>{movie.year}</p>
+              {movie.imdb_id && (
+                <div className="flex flex-wrap gap-2">
+                  <Link
+                    onMouseDown={(event) => event.preventDefault()}
+                    className="inline self-start underline hover:text-sky-500 focus:text-sky-500 focus:ring-0 focus:outline-0"
+                    href={`https://www.imdb.com/title/${movie.imdb_id}`}
+                    target="_blank"
+                  >
+                    IMDb
+                  </Link>
+                  &#183;
+                  <Link
+                    onMouseDown={(event) => event.preventDefault()}
+                    className="inline self-start underline hover:text-sky-500 focus:text-sky-500 focus:ring-0 focus:outline-0"
+                    href={`https://letterboxd.com/imdb/${movie.imdb_id}`}
+                    target="_blank"
+                  >
+                    Letterboxd
+                  </Link>
+                </div>
+              )}
             </div>
-            
-            <div className="flex flex-col md:flex-row gap-4 w-full">
+
+            <div className="flex w-full flex-col gap-4 md:flex-row">
               <div className="flex flex-col gap-2 text-amber-500">
-                <p className="font-bold text-2xl">{movie.users[user.sub] && movie.users[user.sub].user_added_movie_rating ? movie.users[user.sub].user_added_movie_rating : '-'}</p>
+                <p className="text-2xl font-bold">
+                  {movie.users[user.sub] &&
+                  movie.users[user.sub].user_added_movie_rating
+                    ? movie.users[user.sub].user_added_movie_rating
+                    : '-'}
+                </p>
                 <p>My Rating</p>
               </div>
               {pathname.includes('lists') && (
                 <div className="flex flex-col gap-2">
-                  <p className="font-bold text-2xl">{overallRating !== -1 ? overallRating : '-'}</p>
+                  <p className="text-2xl font-bold">
+                    {overallRating !== -1 ? overallRating : '-'}
+                  </p>
                   <p>Overall ({overallRatingCount})</p>
                 </div>
               )}
             </div>
           </div>
-          <div className="w-full justify-end flex gap-2">
-          <Button
-            handleClick={() => {
-              setSelectedMovie(movie);
-              setShowMovieDetailsModal(true);
-            }}
-            color="neutral"
-            rounded={true}
-          >
-            <Info />
-          </Button>
-          <Button
-            handleClick={() => {
-              setSelectedMovie(movie);
-              setShowEditMovieModal(true);
-            }}
-            color="amber"
-            active={movie.users[user.sub] && movie.users[user.sub].user_added_movie_rating}
-            activeColor="amber"
-            rounded={true}
-          >
-            <Star
-              fill="white"
-              stroke={movie.users[user.sub] && movie.users[user.sub].user_added_movie_rating ? 'white' : 'oklch(76.9% 0.188 70.08)'}
-            />
-          </Button>
+          <div className="flex w-full justify-end gap-2">
+            <Button
+              handleClick={() => {
+                setSelectedMovie(movie);
+                setShowMovieDetailsModal(true);
+              }}
+              color="neutral"
+              rounded={true}
+            >
+              <Info />
+            </Button>
+            <Button
+              handleClick={() => {
+                setSelectedMovie(movie);
+                setShowEditMovieModal(true);
+              }}
+              color="amber"
+              active={
+                movie.users[user.sub] &&
+                movie.users[user.sub].user_added_movie_rating
+              }
+              activeColor="amber"
+              rounded={true}
+            >
+              <Star
+                fill="white"
+                stroke={
+                  movie.users[user.sub] &&
+                  movie.users[user.sub].user_added_movie_rating
+                    ? 'white'
+                    : 'oklch(76.9% 0.188 70.08)'
+                }
+              />
+            </Button>
           </div>
-
         </>
       )}
     </div>

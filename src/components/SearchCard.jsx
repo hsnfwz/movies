@@ -10,7 +10,7 @@ function SearchCard({ movie, disabled, handleSelect }) {
       type="button"
       onMouseDown={(event) => event.preventDefault()}
       onClick={handleSelect}
-      className={`flex cursor-pointer justify-between gap-2 rounded-xl border-2 border-neutral-100 p-4 transition-all duration-100 hover:border-black focus:border-black focus:ring-0 focus:outline-0 disabled:pointer-events-none disabled:border-dotted disabled:border-black`}
+      className={`flex cursor-pointer justify-between gap-2 rounded-xl border-2 border-neutral-100 p-4 transition-all duration-100 hover:border-black focus:border-black focus:ring-0 focus:outline-0 disabled:pointer-events-none disabled:border-dotted disabled:border-sky-500`}
     >
       <img
         id={`img-${movie.id}`}

@@ -30,6 +30,58 @@ h1 {
   scrollbar-width: none; /* Firefox */
 }
 
+/* Custom Slider (START) */
+input[type='range'] {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  outline: none;
+  cursor: pointer;
+  height: 16px;
+  border-radius: 16px;
+  background: var(--color-amber-300);
+}
+input[type='range']:hover {
+  opacity: 1;
+}
+input[type='range']::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 32px;
+  height: 32px;
+  background: var(--color-amber-500);
+  border: none;
+  border-radius: 100%;
+  transition: 200ms all;
+}
+input[type='range']::-moz-range-thumb {
+  width: 32px;
+  height: 32px;
+  background: var(--color-amber-500);
+  border: none;
+  border-radius: 100%;
+  transition: 200ms all;
+}
+input[type='range']::-webkit-slider-thumb:hover {
+  box-shadow: 0 0 0 4px var(--color-amber-400);
+}
+input[type='range']:active::-webkit-slider-thumb {
+  box-shadow: 0 0 0 8px var(--color-amber-400);
+}
+input[type='range']:focus::-webkit-slider-thumb {
+  box-shadow: 0 0 0 8px var(--color-amber-400);
+}
+input[type='range']::-moz-range-thumb:hover {
+  box-shadow: 0 0 0 4px var(--color-amber-400);
+}
+input[type='range']:active::-moz-range-thumb {
+  box-shadow: 0 0 0 8px var(--color-amber-400);
+}
+input[type='range']:focus::-moz-range-thumb {
+  box-shadow: 0 0 0 8px var(--color-amber-400);
+}
+/* Custom Slider (END) */
+
 @theme {
   --font-limelight: 'Limelight';
   --font-montserrat: 'Montserrat';

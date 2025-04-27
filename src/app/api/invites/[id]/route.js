@@ -32,8 +32,7 @@ export async function PUT(request, { params }) {
   if (!id) return Response.json({ error: '[id] required.' });
 
   const values = [expiredAt, id];
-  const query =
-    'update invites set expired_at=($1) where (id)=($2)';
+  const query = 'update invites set expired_at=($1) where (id)=($2)';
   await pool.query(query, values);
 
   return Response.json({ message: 'Success!' });

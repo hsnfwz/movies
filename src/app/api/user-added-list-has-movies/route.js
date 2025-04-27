@@ -35,20 +35,14 @@ export async function GET(request) {
   return Response.json({ rows });
 }
 
-async function insertUserAddedListHasMovies(
-  userAddedListId,
-  userAddedMovies
-) {
+async function insertUserAddedListHasMovies(userAddedListId, userAddedMovies) {
   if (userAddedMovies.length === 0) return;
 
   const values = [];
   const placeholders = userAddedMovies
     .map((selectedMovie, i) => {
       const index = i * 2;
-      values.push(
-        userAddedListId,
-        selectedMovie.movie_id
-      );
+      values.push(userAddedListId, selectedMovie.movie_id);
       return `($${index + 1}, $${index + 2})`;
     })
     .join(', ');

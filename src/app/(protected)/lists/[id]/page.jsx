@@ -145,9 +145,13 @@ function List() {
   if (!isFetching && list) {
     return (
       <>
-              {showMovieDetailsModal && (
-          <MovieDetailsModal showModal={showMovieDetailsModal} setShowModal={setShowMovieDetailsModal}             selectedMovie={selectedMovie}
-          setSelectedMovie={setSelectedMovie} />
+        {showMovieDetailsModal && (
+          <MovieDetailsModal
+            showModal={showMovieDetailsModal}
+            setShowModal={setShowMovieDetailsModal}
+            selectedMovie={selectedMovie}
+            setSelectedMovie={setSelectedMovie}
+          />
         )}
 
         {showEditMovieModal && (
@@ -190,7 +194,13 @@ function List() {
           />
           <ScrollYGrid>
             {filteredMovies.map((movie, index) => (
-              <ScrollYCard key={index} movie={listMovies[movie.movie_id]} setSelectedMovie={setSelectedMovie} setShowEditMovieModal={setShowEditMovieModal} setShowMovieDetailsModal={setShowMovieDetailsModal} />
+              <ScrollYCard
+                key={index}
+                movie={listMovies[movie.movie_id]}
+                setSelectedMovie={setSelectedMovie}
+                setShowEditMovieModal={setShowEditMovieModal}
+                setShowMovieDetailsModal={setShowMovieDetailsModal}
+              />
             ))}
           </ScrollYGrid>
         </div>

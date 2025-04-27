@@ -33,7 +33,9 @@ function Invite() {
         return;
       }
 
-      await postData('/api/user-added-list-has-users', { userAddedListId: invites[0].user_added_list_id });
+      await postData('/api/user-added-list-has-users', {
+        userAddedListId: invites[0].user_added_list_id,
+      });
       await putData(`/api/invites/${id}`, { expiredAt: new Date() });
 
       setLoading(false);

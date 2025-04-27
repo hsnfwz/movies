@@ -44,24 +44,24 @@ function Page() {
 
   useEffect(() => {
     async function fetchData() {
-        const { rows: userAddedLists } = await getData('/api/user-added-lists');
-        const _myLists = {};
-        userAddedLists.forEach(
-          (userAddedList) => (_myLists[userAddedList.id] = userAddedList)
-        );
+      const { rows: userAddedLists } = await getData('/api/user-added-lists');
+      const _myLists = {};
+      userAddedLists.forEach(
+        (userAddedList) => (_myLists[userAddedList.id] = userAddedList)
+      );
 
-        const _filteredLists = Object.values(myLists).sort((l1, l2) => {
-          if (l1.name < l2.name) {
-            return -1;
-          }
-          if (l1.name > l2.name) {
-            return 1;
-          }
-          return 0;
-        });
-        setFilteredLists(_filteredLists);
-        setMyLists(_myLists);
-   
+      const _filteredLists = Object.values(myLists).sort((l1, l2) => {
+        if (l1.name < l2.name) {
+          return -1;
+        }
+        if (l1.name > l2.name) {
+          return 1;
+        }
+        return 0;
+      });
+      setFilteredLists(_filteredLists);
+      setMyLists(_myLists);
+
       setIsFetching(false);
     }
 
@@ -91,7 +91,12 @@ function Page() {
     return (
       <>
         {showModal && (
-          <AddListModal showModal={showModal} setShowModal={setShowModal} myLists={myLists} setMyLists={setMyLists} />
+          <AddListModal
+            showModal={showModal}
+            setShowModal={setShowModal}
+            myLists={myLists}
+            setMyLists={setMyLists}
+          />
         )}
         <div className="flex w-full flex-col gap-4">
           <div className="flex w-full items-center gap-4">

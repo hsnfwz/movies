@@ -8,8 +8,17 @@ import { Check, X } from 'lucide-react';
 import { useUser } from '@auth0/nextjs-auth0';
 import useMovieSearch from '@/hooks/useMovieSearch';
 import Modal from '@/components/Modal';
+import useUserSearch from '@/hooks/useUserSearch';
+import SearchCardUser from '../SearchCardUser';
 
-function EditListModal({ list, setList, showModal, setShowModal, myMovies, setMyMovies }) {
+function EditListModal({
+  list,
+  setList,
+  showModal,
+  setShowModal,
+  myMovies,
+  setMyMovies,
+}) {
   const { user } = useUser();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [name, setName] = useState(list.name);
@@ -17,6 +26,15 @@ function EditListModal({ list, setList, showModal, setShowModal, myMovies, setMy
   const [emailMessage, setEmailMessage] = useState(null);
   const [selectedUsers, setSelectedUsers] = useState({});
   const [selectedMovies, setSelectedMovies] = useState({});
+
+  const {
+    searchUsername,
+    setSearchUsername,
+    searchUsers,
+    setSearchUsers,
+    isSearchingUsers,
+    setIsSearchingUsers,
+  } = useUserSearch();
 
   const {
     searchTitle,
@@ -61,7 +79,7 @@ function EditListModal({ list, setList, showModal, setShowModal, myMovies, setMy
 
       if (myMovies) {
         const _myMovies = { ...myMovies };
-        userAddedMovies.forEach(movie => {
+        userAddedMovies.forEach((movie) => {
           _myMovies[movie.movie_id] = {
             movie_id: movie.movie_id,
             imdb_id: movie.imdb_id,
@@ -115,71 +133,64 @@ function EditListModal({ list, setList, showModal, setShowModal, myMovies, setMy
         />
       </div>
       <div className="flex flex-col gap-4">
-        <label className={`${emailMessage ? 'text-rose-500' : ''}`}>
-          Search and Add Users By Email
-        </label>
+        <label>Search and Add Users By Username</label>
         <div className="flex w-full items-center gap-2">
           <input
             autoComplete="off"
             type="text"
-            value={email}
-            onInput={(event) => setEmail(event.currentTarget.value)}
-            className={`flex h-[48px] w-full rounded-full border-2 border-neutral-100 bg-neutral-100 px-4 text-black transition-all duration-100 hover:border-neutral-200 focus:border-black focus:bg-white focus:ring-0 focus:outline-0 ${emailMessage ? 'border-rose-500' : ''}`}
+            value={searchUsername}
+            onInput={(event) => setSearchUsername(event.currentTarget.value)}
+            className={`flex h-[48px] w-full rounded-full border-2 border-neutral-100 bg-neutral-100 px-4 text-black transition-all duration-100 hover:border-neutral-200 focus:border-black focus:bg-white focus:ring-0 focus:outline-0`}
           />
           <Button
-            handleClick={async () => {
-              const response = await fetch(`/api/search/users?email=${email}`);
-
-              const { users, error } = await response.json();
-
-              if (error) console.error(error);
-
-              if (!users[0]) {
-                setEmailMessage(`A user with email ${email} was not found.`);
-              } else if (users[0].email === user.email) {
-                setEmailMessage('You are already in this list.');
-              } else {
-                const _selectedUsers = { ...selectedUsers };
-                _selectedUsers[email] = {
-                  user_id: users[0].user_id,
-                  email: users[0].email,
-                };
-                setSelectedUsers(_selectedUsers);
-                setEmail('');
-              }
-            }}
-            disabled={email.length === 0}
-            color="sky"
+            handleClick={() => setSearchUsername('')}
+            disabled={searchUsername.length === 0}
+            color="neutral"
           >
-            Apply
+            Clear
           </Button>
         </div>
-        {emailMessage && (
-          <p className="text-xs text-rose-500">{emailMessage}</p>
-        )}
         {Object.values(selectedUsers).length > 0 && (
-          <div className="flex flex-col gap-2 rounded-xl border-2 border-dotted border-black p-2">
-            {Object.values(selectedUsers).map((listUser, index) => (
-              <div
+          <div className="flex flex-wrap gap-2">
+            {Object.values(selectedUsers).map((selectedUser, index) => (
+              <Button
                 key={index}
-                className="flex w-full items-center gap-2 rounded-full bg-neutral-100 px-4 py-2"
+                handleClick={() => {
+                  const _selectedUsers = { ...selectedUsers };
+                  delete _selectedUsers[selectedUser.user_id];
+                  setSelectedUsers(_selectedUsers);
+                }}
+                color="sky"
+                className="self-start gap-2"
               >
-                <p className="w-full">{listUser.email}</p>
-                <Button
-                  handleClick={() => {
-                    const _selectedUsers = { ...selectedUsers };
-                    delete _selectedUsers[listUser.email];
-                    setSelectedUsers(_selectedUsers);
-                  }}
-                  color="rose"
-                  rounded={true}
-                >
-                  <X />
-                </Button>
-              </div>
+                <X />
+                <span>{selectedUser.username}</span>
+              </Button>
             ))}
           </div>
         )}
+        {searchUsers.length > 0 && (
+          <div className="flex w-full flex-col gap-2">
+            {searchUsers.map((searchUser, index) => (
+              <SearchCardUser
+                key={index}
+                user={searchUser}
+                disabled={
+                  selectedUsers[searchUser.user_id] ||
+                  searchUser.user_id === user.sub
+                }
+                handleSelect={() => {
+                  if (!selectedUsers[searchUser.user_id]) {
+                    const _selectedUsers = { ...selectedUsers };
+                    _selectedUsers[searchUser.user_id] = searchUser;
+                    setSelectedUsers(_selectedUsers);
+                  }
+                }}
+              />
+            ))}
+          </div>
+        )}
+        {isSearchingUsers && <Loading />}
       </div>
       <div className="flex flex-col gap-4">
         <label>Search and Add Movies by Title</label>
@@ -194,32 +205,27 @@ function EditListModal({ list, setList, showModal, setShowModal, myMovies, setMy
           <Button
             handleClick={() => setSearchTitle('')}
             disabled={searchTitle.length === 0}
-            color="rose"
+            color="neutral"
           >
             Clear
           </Button>
         </div>
-
         {Object.values(selectedMovies).length > 0 && (
-          <div className="flex flex-col gap-2 rounded-xl border-2 border-dotted border-black p-2">
+          <div className="flex flex-wrap gap-2">
             {Object.values(selectedMovies).map((movie, index) => (
-              <div
+              <Button
                 key={index}
-                className="flex w-full items-center gap-2 rounded-full bg-neutral-100 px-4 py-2"
+                handleClick={() => {
+                  const _selectedMovies = { ...selectedMovies };
+                  delete _selectedMovies[movie.imdb_id];
+                  setSelectedMovies(_selectedMovies);
+                }}
+                color="sky"
+                className="self-start gap-2"
               >
-                <p className="w-full">{movie.title}</p>
-                <Button
-                  handleClick={() => {
-                    const _selectedMovies = { ...selectedMovies };
-                    delete _selectedMovies[movie.imdb_id];
-                    setSelectedMovies(_selectedMovies);
-                  }}
-                  color="rose"
-                  rounded={true}
-                >
-                  <X />
-                </Button>
-              </div>
+                <X />
+                <span>{movie.title}</span>
+              </Button>
             ))}
           </div>
         )}

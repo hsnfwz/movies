@@ -7,91 +7,111 @@ import {
   Text,
   Heading,
   Body,
+  Section,
+  Row,
+  Column,
 } from '@react-email/components';
 
 function Invite({ sender, receiver, inviteId }) {
   return (
     <Html lang="en">
-      <Head>
-        {/* <Font
-        fontFamily="Limelight"
-        fallbackFontFamily="Arial"
-        webFont={{
-          url: "https://fonts.googleapis.com/css2?family=Limelight&display=swap",
-          format: "woff2",
+      <Body
+        style={{
+          backgroundColor: '#00a6f4',
+          padding: '32px',
         }}
-        fontWeight={400}
-        fontStyle="normal"
-      /> */}
-      </Head>
-      <Body style={{ width: '100%', display: 'flex' }}>
-        <Container
+      >
+        <Section>
+          <Row>
+            <Column>
+              <Text
+                style={{
+                  textAlign: 'center',
+                  fontWeight: '700',
+                  fontSize: '24px',
+                  color: 'white',
+                  marginBottom: '32px',
+                }}
+              >
+                FilmFest
+              </Text>
+            </Column>
+          </Row>
+        </Section>
+        <Section
           style={{
-            display: 'flex',
-            width: '100%',
-            flexDirection: 'column',
-            gap: '64px',
-            alignItems: 'center',
-            justifyContent: 'center',
-            backgroundColor: '#f5f5f5',
-            padding: '16px',
+            backgroundColor: '#ffffff',
+            padding: '32px',
             borderRadius: '16px',
+            width: '600px',
+            margin: '0 auto',
           }}
         >
-          <Container
-            style={{
-              display: 'flex',
-              width: '100%',
-              flexDirection: 'column',
-              gap: '32px',
-              alignItems: 'center',
-              justifyContent: 'center',
-            }}
-          >
-            <Heading
-              style={{
-                textAlign: 'center',
-                fontWeight: 'bold',
-                fontSize: '24px',
-              }}
-            >
-              Hey {receiver.email}!
-            </Heading>
+          <Container>
+            {/* Heading */}
+            <Section>
+              <Row>
+                <Column>
+                  <Heading
+                    style={{
+                      textAlign: 'center',
+                      fontWeight: '700',
+                      fontSize: '24px',
+                      color: 'black',
+                      marginBottom: '32px',
+                    }}
+                  >
+                    Hey {receiver.username}!
+                  </Heading>
+                </Column>
+              </Row>
 
-            <Text
-              style={{
-                textAlign: 'center',
-                fontWeight: 'normal',
-                fontSize: '16px',
-              }}
-            >
-              {sender.email} has invited you to join their list. Click on the
-              link below to accept your invitation.
-            </Text>
+              {/* Text */}
+              <Row>
+                <Column>
+                  <Text
+                    style={{
+                      textAlign: 'center',
+                      fontWeight: '400',
+                      fontSize: '16px',
+                      color: 'black',
+                      marginBottom: '32px',
+                    }}
+                  >
+                    You have been invited by{' '}
+                    <span style={{ fontWeight: 'bold' }}>
+                      {sender.username}
+                    </span>{' '}
+                    to join a new list!
+                    <br />
+                    Click on the button below to accept your invitation.
+                  </Text>
+                </Column>
+              </Row>
+            </Section>
+
+            {/* Button */}
+            <Section style={{ textAlign: 'center' }}>
+              <Button
+                href={`${process.env.APP_BASE_URL}/invites/${inviteId}`}
+                target="_blank"
+                style={{
+                  display: 'inline-block',
+                  backgroundColor: '#fd9a00',
+                  borderRadius: '8px',
+                  padding: '14px 28px',
+                  color: '#ffffff',
+                  fontSize: '20px',
+                  fontWeight: '700',
+                  textDecoration: 'none',
+                  textAlign: 'center',
+                }}
+              >
+                Accept Invitation
+              </Button>
+            </Section>
           </Container>
-
-          <Button
-            href={`${process.env.APP_BASE_URL}/invites/${inviteId}`}
-            target="_blank"
-            style={{
-              display: 'flex',
-              textAlign: 'center',
-              verticalAlign: 'middle',
-              fontWeight: 'bold',
-              fontSize: '24px',
-              backgroundColor: '#00a6f4',
-              borderRadius: '16px',
-              color: 'white',
-              alignItems: 'center',
-              justifyContent: 'center',
-              height: '48px',
-              paddingLeft: '16px',
-              paddingRight: '16px',
-            }}
-          >
-            Accept Invitation
-          </Button>
-        </Container>
+        </Section>
       </Body>
     </Html>
   );
