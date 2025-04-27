@@ -13,9 +13,12 @@ export async function PUT(request, { params }) {
 
   const { id } = await params;
 
-  const values = [rating, id];
-  const sql = 'update movies set rating=$1 where id=$2 returning *';
-  const { rows } = await pool.query(sql, values);
+  if (!id) return Response.json({ error: '[id] required.' });
 
-  return Response.json({ movie: rows[0] });
+  const values = [rating, id];
+  const query =
+    'UPDATE user_added_movies SET rating=$1 WHERE id=$2 RETURNING rating as user_added_movie_rating';
+  const { rows } = await pool.query(query, values);
+
+  return Response.json({ rows });
 }

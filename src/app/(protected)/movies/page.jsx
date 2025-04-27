@@ -1,34 +1,46 @@
 'use client';
 import { useEffect, useState, useRef, useContext } from 'react';
-import { DataContext } from '@/contexts/DataContextProvider';
 import { Plus } from 'lucide-react';
 import ScrollYCard from '@/components/ScrollYCard';
 import ScrollYGrid from '@/components/ScrollYGrid';
 import Loading from '@/components/Loading';
-import { ModalContext } from '@/contexts/ModalContextProvider';
 import Button from '@/components/Button';
+import { getData, postData, putData } from '@/helpers';
+import AddMovieModal from '@/components/modals/AddMovieModal';
+import EditMovieRatingModal from '@/components/modals/EditMovieRatingModal';
+import MovieDetailsModal from '@/components/modals/MovieDetailsModal';
 
 function Movies() {
-  const { modal, setModal } = useContext(ModalContext);
-  const { movies, setMovies } = useContext(DataContext);
-  const [fetchingData, setFetchingData] = useState(true);
+  const [myMovies, setMyMovies] = useState({});
+  const [isFetching, setIsFetching] = useState(true);
+  const [showAddMovieModal, setShowAddMovieModal] = useState(false);
+  const [showEditMovieModal, setShowEditMovieModal] = useState(false);
+  const [showMovieDetailsModal, setShowMovieDetailsModal] = useState(false);
   const [filteredMovies, setFilteredMovies] = useState([]);
+  const [filteredMoviesTitle, setFilteredMoviesTitle] = useState('');
+  const [selectedMovie, setSelectedMovie] = useState(null);
+  const timerRef = useRef();
 
-  const searchTimerRef = useRef();
-  const [title, setTitle] = useState('');
+  function handleSearchFilteredMovies(event) {
+    const _searchTitle = event.currentTarget.value;
+    setFilteredMoviesTitle(_searchTitle);
 
-  function handleSearch(event) {
-    const _title = event.currentTarget.value;
-    setTitle(_title);
-
-    clearTimeout(searchTimerRef.current);
-    searchTimerRef.current = setTimeout(() => {
-      if (_title.length === 0) {
-        const _filteredMovies = Object.values(movies);
+    clearTimeout(timerRef.current);
+    timerRef.current = setTimeout(() => {
+      if (_searchTitle.length === 0) {
+        const _filteredMovies = Object.values(myMovies).sort((m1, m2) => {
+          if (m1.title < m2.title) {
+            return -1;
+          }
+          if (m1.title > m2.title) {
+            return 1;
+          }
+          return 0;
+        });
         setFilteredMovies(_filteredMovies);
       } else {
-        const _filteredMovies = Object.values(movies).filter((movie) =>
-          movie.title.toLowerCase().includes(_title.trim().toLowerCase())
+        const _filteredMovies = Object.values(myMovies).filter((movie) =>
+          movie.title.toLowerCase().includes(_searchTitle.trim().toLowerCase())
         );
         setFilteredMovies(_filteredMovies);
       }
@@ -37,104 +49,141 @@ function Movies() {
 
   useEffect(() => {
     async function fetchData() {
-      if (Object.keys(movies).length === 0) {
-        const response = await fetch(`/api/movies`);
-        const { movies: myMovies, error } = await response.json();
-
-        if (error) {
-          setFetchingData(false);
-          return console.log(error);
-        }
+        const { rows: userAddedMovies } = await getData(
+          '/api/user-added-movies'
+        );
 
         const _myMovies = {};
-        myMovies.forEach((movie) => (_myMovies[movie.id] = movie));
-        setMovies(_myMovies);
+
+        userAddedMovies.forEach((movie) => {
+          if (_myMovies[movie.movie_id]) {
+            _myMovies[movie.movie_id].users[
+              movie.user_added_movie_auth0_user_id
+            ] = {
+              user_added_movie_id: movie.user_added_movie_id,
+              user_added_movie_rating: movie.user_added_movie_rating,
+              user_added_movie_auth0_user_id:
+                movie.user_added_movie_auth0_user_id,
+            };
+          } else {
+            _myMovies[movie.movie_id] = {
+              movie_id: movie.movie_id,
+              imdb_id: movie.imdb_id,
+              tmdb_id: movie.tmdb_id,
+              poster_path: movie.poster_path,
+              title: movie.title,
+              year: movie.year,
+              users: {
+                [movie.user_added_movie_auth0_user_id]: {
+                  user_added_movie_id: movie.user_added_movie_id,
+                  user_added_movie_rating: movie.user_added_movie_rating,
+                  user_added_movie_auth0_user_id:
+                    movie.user_added_movie_auth0_user_id,
+                },
+              },
+            };
+          }
+        });
+
+        setMyMovies(_myMovies);
 
         const _filteredMovies = Object.values(_myMovies).sort((m1, m2) => {
-            if ( m1.title < m2.title ){
-    return -1;
-  }
-  if ( m1.title > m2.title ){
-    return 1;
-  }
-  return 0;
+          if (m1.title < m2.title) {
+            return -1;
+          }
+          if (m1.title > m2.title) {
+            return 1;
+          }
+          return 0;
         });
         setFilteredMovies(_filteredMovies);
-      } else {
-        const _filteredMovies = Object.values(movies).sort((m1, m2) => {
-            if ( m1.title < m2.title ){
-    return -1;
-  }
-  if ( m1.title > m2.title ){
-    return 1;
-  }
-  return 0;
-        });
-        setFilteredMovies(_filteredMovies);
-      }
-
-      setFetchingData(false);
+      setIsFetching(false);
     }
 
     fetchData();
   }, []);
 
   useEffect(() => {
-    if (!fetchingData) {
-      const _filteredMovies = Object.values(movies).sort((m1, m2) => {
-          if ( m1.title < m2.title ){
-    return -1;
-  }
-  if ( m1.title > m2.title ){
-    return 1;
-  }
-  return 0;
+    if (!isFetching) {
+      const _filteredMovies = Object.values(myMovies).sort((m1, m2) => {
+        if (m1.title < m2.title) {
+          return -1;
+        }
+        if (m1.title > m2.title) {
+          return 1;
+        }
+        return 0;
       });
       setFilteredMovies(_filteredMovies);
     }
-  }, [fetchingData, movies]);
+  }, [isFetching, myMovies]);
 
-  if (fetchingData) {
+  if (isFetching) {
     return <Loading />;
   }
 
-  if (!fetchingData) {
+  if (!isFetching) {
     return (
-      <div className="flex w-full flex-col gap-4">
-        <div className="flex w-full items-center gap-4">
-          <h1 className="w-full">
-            {Object.keys(movies).length === 0
-              ? 'You do not have any movies yet'
-              : 'My Movies'}
-          </h1>
-          <Button
-            handleClick={() => setModal({ action: 'ADD_MOVIE' })}
-            rounded={true}
-            color="sky"
-          >
-            <Plus />
-          </Button>
+      <>
+        {showMovieDetailsModal && (
+          <MovieDetailsModal showModal={showMovieDetailsModal} setShowModal={setShowMovieDetailsModal}             selectedMovie={selectedMovie}
+          setSelectedMovie={setSelectedMovie} />
+        )}
+        {showAddMovieModal && (
+          <AddMovieModal showModal={showAddMovieModal} setShowModal={setShowAddMovieModal} myMovies={myMovies} setMyMovies={setMyMovies} />
+        )}
+        {showEditMovieModal && selectedMovie && (
+          <EditMovieRatingModal
+            showModal={showEditMovieModal}
+            setShowModal={setShowEditMovieModal}
+            selectedMovie={selectedMovie}
+            setSelectedMovie={setSelectedMovie}
+            myMovies={myMovies}
+            setMyMovies={setMyMovies}
+          />
+        )}
+        <div className="flex w-full flex-col gap-4">
+          <div className="flex w-full items-center gap-4">
+            <h1 className="w-full">
+              {Object.keys(myMovies).length === 0
+                ? 'You do not have any movies yet'
+                : 'My Movies'}
+            </h1>
+            <Button
+              handleClick={() => setShowAddMovieModal(true)}
+              rounded={true}
+              color="sky"
+            >
+              <Plus />
+            </Button>
+          </div>
+          {Object.keys(myMovies).length === 0 && (
+            <p>Let's get you started by adding your first movie!</p>
+          )}
+          {Object.keys(myMovies).length > 0 && (
+            <>
+              <input
+                type="text"
+                value={filteredMoviesTitle}
+                placeholder="Search Movies"
+                onInput={handleSearchFilteredMovies}
+                className="flex h-[48px] w-full rounded-full border-2 border-neutral-100 bg-neutral-100 px-4 text-black placeholder-neutral-400 transition-all duration-100 hover:border-neutral-200 focus:border-black focus:bg-white focus:ring-0 focus:outline-0"
+              />
+              <ScrollYGrid>
+                {filteredMovies.map((movie, index) => (
+                  <ScrollYCard
+                    key={index}
+                    movie={movie}
+                    setShowEditMovieModal={setShowEditMovieModal}
+                    setShowMovieDetailsModal={setShowMovieDetailsModal}
+                    setSelectedMovie={setSelectedMovie}
+                  />
+                ))}
+              </ScrollYGrid>
+            </>
+          )}
         </div>
-        {Object.keys(movies).length === 0 && (
-          <p>Let's get you started by adding your first movie!</p>
-        )}
-        {Object.keys(movies).length > 0 && (
-          <>
-            <input
-              type="text"
-              value={title}
-              placeholder="Search Movies"
-              onInput={handleSearch}
-              className="flex h-[48px] w-full rounded-full border-2 border-neutral-100 bg-neutral-100 px-4 text-black placeholder-neutral-400 transition-all duration-100 hover:border-neutral-200 focus:border-black focus:bg-white focus:ring-0 focus:outline-0"
-            />
-            <ScrollYGrid>
-              {filteredMovies.map((movie, index) => (
-                <ScrollYCard key={index} movie={movie} />
-              ))}
-            </ScrollYGrid>
-          </>
-        )}
-      </div>
+      </>
     );
   }
 }

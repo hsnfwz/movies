@@ -2,29 +2,39 @@
 import { useContext, useEffect, useState, useRef } from 'react';
 import Link from 'next/link';
 import { Plus } from 'lucide-react';
-import { ModalContext } from '@/contexts/ModalContextProvider';
-import { DataContext } from '@/contexts/DataContextProvider';
 import Loading from '@/components/Loading';
 import Button from '@/components/Button';
+import { getData, postData } from '@/helpers';
+import AddListModal from '@/components/modals/AddListModal';
 
-function Home() {
-  const { modal, setModal } = useContext(ModalContext);
-  const { lists, setLists } = useContext(DataContext);
-  const searchTimerRef = useRef();
+function Page() {
+  const [myLists, setMyLists] = useState({});
+
+  const timerRef = useRef();
+  const [isFetching, setIsFetching] = useState(true);
+  const [showModal, setShowModal] = useState(false);
   const [name, setName] = useState('');
-  const [fetchingLists, setFetchingLists] = useState(true);
   const [filteredLists, setFilteredLists] = useState([]);
 
   function handleSearch(event) {
     const _name = event.currentTarget.value;
     setName(_name);
 
-    clearTimeout(searchTimerRef.current);
-    searchTimerRef.current = setTimeout(() => {
+    clearTimeout(timerRef.current);
+    timerRef.current = setTimeout(() => {
       if (_name.length === 0) {
-        setFilteredLists(Object.values(lists));
+        const _filteredLists = Object.values(myLists).sort((l1, l2) => {
+          if (l1.name < l2.name) {
+            return -1;
+          }
+          if (l1.name > l2.name) {
+            return 1;
+          }
+          return 0;
+        });
+        setFilteredLists(_filteredLists);
       } else {
-        const _filteredLists = Object.values(lists).filter((list) =>
+        const _filteredLists = Object.values(myLists).filter((list) =>
           list.name.toLowerCase().includes(_name.trim().toLowerCase())
         );
         setFilteredLists(_filteredLists);
@@ -34,81 +44,100 @@ function Home() {
 
   useEffect(() => {
     async function fetchData() {
-      if (Object.keys(lists).length === 0) {
-        const response = await fetch('/api/lists');
-        const { lists: myLists, error } = await response.json();
+        const { rows: userAddedLists } = await getData('/api/user-added-lists');
+        const _myLists = {};
+        userAddedLists.forEach(
+          (userAddedList) => (_myLists[userAddedList.id] = userAddedList)
+        );
 
-        if (error) return console.log(error);
-
-        const _lists = {};
-        myLists.forEach((list) => (_lists[list.id] = list));
-
-        setLists(_lists);
-      } else {
-        setFilteredLists(Object.values(lists));
-      }
-      setFetchingLists(false);
+        const _filteredLists = Object.values(myLists).sort((l1, l2) => {
+          if (l1.name < l2.name) {
+            return -1;
+          }
+          if (l1.name > l2.name) {
+            return 1;
+          }
+          return 0;
+        });
+        setFilteredLists(_filteredLists);
+        setMyLists(_myLists);
+   
+      setIsFetching(false);
     }
 
     fetchData();
   }, []);
 
   useEffect(() => {
-    if (!fetchingLists) {
-      setFilteredLists(Object.values(lists));
+    if (!isFetching) {
+      const _filteredLists = Object.values(myLists).sort((l1, l2) => {
+        if (l1.name < l2.name) {
+          return -1;
+        }
+        if (l1.name > l2.name) {
+          return 1;
+        }
+        return 0;
+      });
+      setFilteredLists(_filteredLists);
     }
-  }, [fetchingLists, lists]);
+  }, [isFetching, myLists]);
 
-  if (fetchingLists) {
+  if (isFetching) {
     return <Loading />;
   }
 
-  if (!fetchingLists) {
+  if (!isFetching) {
     return (
-      <div className="flex w-full flex-col gap-4">
-        <div className="flex w-full items-center gap-4">
-          <h1 className="w-full">
-            {Object.keys(lists).length === 0
-              ? 'You do not have any lists yet'
-              : 'My Lists'}
-          </h1>
-          <Button
-            handleClick={() => setModal({ action: 'ADD_LIST' })}
-            rounded={true}
-            color="sky"
-          >
-            <Plus />
-          </Button>
-        </div>
+      <>
+        {showModal && (
+          <AddListModal showModal={showModal} setShowModal={setShowModal} myLists={myLists} setMyLists={setMyLists} />
+        )}
+        <div className="flex w-full flex-col gap-4">
+          <div className="flex w-full items-center gap-4">
+            <h1 className="w-full">
+              {Object.keys(myLists).length === 0
+                ? 'You do not have any lists yet'
+                : 'My Lists'}
+            </h1>
+            <Button
+              handleClick={() => setShowModal(true)}
+              rounded={true}
+              color="sky"
+            >
+              <Plus />
+            </Button>
+          </div>
 
-        {Object.keys(lists).length === 0 && (
-          <p>Let's get you started by adding your first list!</p>
-        )}
-        {Object.keys(lists).length > 0 && (
-          <>
-            <input
-              type="text"
-              placeholder="Search Lists"
-              value={name}
-              onInput={handleSearch}
-              className="flex h-[48px] w-full rounded-full border-2 border-neutral-100 bg-neutral-100 px-4 text-black placeholder-neutral-400 transition-all duration-100 hover:border-neutral-200 focus:border-black focus:bg-white focus:ring-0 focus:outline-0"
-            />
-            <div className="flex w-full flex-wrap gap-2">
-              {filteredLists.map((list, index) => (
-                <Link
-                  key={index}
-                  href={`/lists/${list.id}`}
-                  className="flex h-[48px] items-center justify-center rounded-full border-2 border-sky-500 bg-sky-500 px-4 text-white transition-all duration-100 hover:border-sky-700 focus:border-black focus:ring-0 focus:outline-0"
-                >
-                  {list.name}
-                </Link>
-              ))}
-            </div>
-          </>
-        )}
-      </div>
+          {Object.keys(myLists).length === 0 && (
+            <p>Let's get you started by adding your first list!</p>
+          )}
+          {Object.keys(myLists).length > 0 && (
+            <>
+              <input
+                type="text"
+                placeholder="Search Lists"
+                value={name}
+                onInput={handleSearch}
+                className="flex h-[48px] w-full rounded-full border-2 border-neutral-100 bg-neutral-100 px-4 text-black placeholder-neutral-400 transition-all duration-100 hover:border-neutral-200 focus:border-black focus:bg-white focus:ring-0 focus:outline-0"
+              />
+              <div className="flex w-full flex-wrap gap-2">
+                {filteredLists.map((list, index) => (
+                  <Link
+                    key={index}
+                    href={`/lists/${list.id}`}
+                    className="flex h-[48px] items-center justify-center rounded-full border-2 border-sky-500 bg-sky-500 px-4 text-white transition-all duration-100 hover:border-sky-700 focus:border-black focus:ring-0 focus:outline-0"
+                  >
+                    {list.name}
+                  </Link>
+                ))}
+              </div>
+            </>
+          )}
+        </div>
+      </>
     );
   }
 }
 
-export default Home;
+export default Page;

@@ -2,56 +2,96 @@
 import { useEffect, useRef, useState } from 'react';
 
 function useMovieSearch() {
-  const [title, setTitle] = useState('');
-  const [page, setPage] = useState(1);
-  const [movies, setMovies] = useState([]);
-  const [fetchingMovies, setFetchingMovies] = useState(false);
+  const [searchTitle, setSearchTitle] = useState('');
+  const [searchPage, setSearchPage] = useState(1);
+  const [searchMovies, setSearchMovies] = useState([]);
+  const [isSearchingMovies, setIsSearchingMovies] = useState(false);
+  const [hasMoreSearchMovies, setHasMoreSearchMovies] = useState(true);
 
   const timerRef = useRef();
 
   useEffect(() => {
-    if (title.trim().length === 0) {
-      setMovies([]);
-      return;
-    }
-    setFetchingMovies(true);
     clearTimeout(timerRef.current);
-    timerRef.current = setTimeout(() => {
-      getMoviesOnTitleChange();
-    }, [500]);
-  }, [title]);
+
+    if (searchTitle.trim().length === 0) {
+      setIsSearchingMovies(false);
+      setSearchMovies([]);
+    } else {
+      timerRef.current = setTimeout(() => {
+        getMoviesOnTitleChange();
+      }, [500]);
+    }
+  }, [searchTitle]);
 
   useEffect(() => {
-    if (title.trim().length === 0 || page === 1) return;
-    setFetchingMovies(true);
-    getMoviesOnPageChange();
-  }, [page]);
+    if (searchTitle.trim().length > 0) getMoviesOnPageChange();
+  }, [searchPage]);
 
   async function getMoviesOnTitleChange() {
     try {
-      const response = await fetch(`/api/search?title=${title}&page=1`);
-      const data = await response.json();
-      setMovies(data.movies);
-      if (page > 1) setPage(1);
-      setFetchingMovies(false);
+      if (searchPage > 1) {
+        setSearchPage(1);
+      } else {
+        setIsSearchingMovies(true);
+        const response = await fetch(
+          `/api/search/movies?title=${searchTitle}&page=1`
+        );
+        const { movies } = await response.json();
+
+        if (movies.length < 20) {
+          setHasMoreSearchMovies(false);
+        } else {
+          setHasMoreSearchMovies(true);
+        }
+        setSearchMovies(movies);
+        setIsSearchingMovies(false);
+      }
     } catch (error) {
-      console.log(error);
+      console.error(error);
     }
   }
 
   async function getMoviesOnPageChange() {
     try {
-      const response = await fetch(`/api/search?title=${title}&page=${page}`);
-      const data = await response.json();
-      const _movies = [...movies, ...data.movies];
-      setMovies(_movies);
-      setFetchingMovies(false);
+      setIsSearchingMovies(true);
+      const response = await fetch(
+        `/api/search/movies?title=${searchTitle}&page=${searchPage}`
+      );
+      const { movies } = await response.json();
+
+      if (movies.length < 20) {
+        setHasMoreSearchMovies(false);
+      } else {
+        setHasMoreSearchMovies(true);
+      }
+
+      let _movies;
+
+      if (searchPage === 1) {
+        _movies = movies;
+      } else {
+        _movies = [...searchMovies, ...movies];
+      }
+
+      setSearchMovies(_movies);
+      setIsSearchingMovies(false);
     } catch (error) {
-      console.log(error);
+      console.error(error);
     }
   }
 
-  return [title, setTitle, page, setPage, movies, fetchingMovies];
+  return {
+    searchTitle,
+    setSearchTitle,
+    searchPage,
+    setSearchPage,
+    searchMovies,
+    setSearchMovies,
+    isSearchingMovies,
+    setIsSearchingMovies,
+    hasMoreSearchMovies,
+    setHasMoreSearchMovies,
+  };
 }
 
 export default useMovieSearch;

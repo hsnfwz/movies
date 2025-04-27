@@ -1,18 +1,18 @@
 'use client';
-import { useContext, useEffect, useRef } from 'react';
+import { useEffect, useRef } from 'react';
 import { X } from 'lucide-react';
-import { ModalContext } from '@/contexts/ModalContextProvider';
 import Button from '@/components/Button';
 
-function Modal({ children, disabled, show, handleReset }) {
-  const { setModal } = useContext(ModalContext);
-
+function Modal({ children, disabled, setShowModal }) {
   const modalRef = useRef();
 
   useEffect(() => {
-    if (show) {
-      disableBodyScroll();
+    disableBodyScroll();
 
+    let handleTabKeyPress;
+    let handleEscapeKeyPress;
+
+    if (modalRef && modalRef.current) {
       const focusableElements = modalRef.current.querySelectorAll(
         'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
       );
@@ -21,7 +21,7 @@ function Modal({ children, disabled, show, handleReset }) {
 
       firstElement.focus();
 
-      const handleTabKeyPress = (event) => {
+      handleTabKeyPress = (event) => {
         if (event.key === 'Tab') {
           if (
             lastElement.disabled &&
@@ -45,22 +45,26 @@ function Modal({ children, disabled, show, handleReset }) {
         }
       };
 
-      const handleEscapeKeyPress = (event) => {
-        if (event.key === 'Escape') {
-          closeModal(false);
+      handleEscapeKeyPress = (event) => {
+        if (!disabled && event.key === 'Escape') {
+          enableBodyScroll();
+          setShowModal(false);
         }
       };
 
       modalRef.current.addEventListener('keydown', handleTabKeyPress);
       document.addEventListener('keydown', handleEscapeKeyPress);
+    }
 
-      return () => {
+    return () => {
+      if (modalRef && modalRef.current) {
         modalRef.current.removeEventListener('keydown', handleTabKeyPress);
         document.removeEventListener('keydown', handleEscapeKeyPress);
-        enableBodyScroll();
-      };
-    }
-  }, [show]);
+      }
+
+      enableBodyScroll();
+    };
+  }, []);
 
   function enableBodyScroll() {
     const body = document.querySelector('body');
@@ -74,30 +78,26 @@ function Modal({ children, disabled, show, handleReset }) {
     body.classList.remove('overflow-auto');
   }
 
-  function handleModalClickOutside(event) {
-    if (event.target === event.currentTarget) {
-      closeModal();
-    }
-  }
-
-  function closeModal() {
-    if (!disabled) {
-      if (handleReset) handleReset();
-      setModal({ action: '', data: null });
-      enableBodyScroll();
-    }
-  }
-
   return (
     <div
       ref={modalRef}
-      className={`fixed top-0 left-0 z-50 h-[100dvh] w-full overflow-y-auto bg-black/75 p-4 backdrop-blur-lg ${show ? 'block' : 'hidden'}`}
-      onClick={handleModalClickOutside}
+      className={`fixed top-0 left-0 z-50 h-[100dvh] w-full overflow-y-auto bg-black/75 p-4 backdrop-blur-lg`}
+      onClick={(event) => {
+        if (!disabled && event.target === event.currentTarget) {
+          enableBodyScroll();
+          setShowModal(false);
+        }
+      }}
     >
       <div className="m-auto flex w-full flex-col gap-4 rounded-2xl bg-white p-4">
         <Button
           disabled={disabled}
-          handleClick={closeModal}
+          handleClick={() => {
+            if (!disabled) {
+              enableBodyScroll();
+              setShowModal(false);
+            }
+          }}
           rounded={true}
           color="neutral"
           className="self-end"

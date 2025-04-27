@@ -1,6 +1,5 @@
 export async function GET(request) {
   const searchParams = request.nextUrl.searchParams;
-
   const title = searchParams.get('title');
   const page = searchParams.get('page');
 
@@ -10,7 +9,7 @@ export async function GET(request) {
   const movies = [];
 
   const response = await fetch(
-    `https://api.themoviedb.org/3/search/movie?query=${title.trim()}&include_adult=false&language=en-US&page=${page}`,
+    `https://api.themoviedb.org/3/search/movie?query=${title.trim()}&page=${page}&include_adult=false&language=en-US&region=CA`,
     {
       method: 'GET',
       headers: {
@@ -41,7 +40,7 @@ export async function GET(request) {
 
     movies.push({
       imdb_id,
-      id: result.id,
+      tmdb_id: result.id,
       title: result.title,
       year: result.release_date.split('-')[0],
       poster_path: result.poster_path,

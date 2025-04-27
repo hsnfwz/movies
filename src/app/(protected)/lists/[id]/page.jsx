@@ -2,114 +2,199 @@
 import { useEffect, useState, useRef, useContext } from 'react';
 import { useParams } from 'next/navigation';
 import { Pen } from 'lucide-react';
-import { ModalContext } from '@/contexts/ModalContextProvider';
-import { DataContext } from '@/contexts/DataContextProvider';
 import ScrollYGrid from '@/components/ScrollYGrid';
 import ScrollYCard from '@/components/ScrollYCard';
 import Loading from '@/components/Loading';
-import Empty from '@/components/Empty';
+import Message from '@/components/Message';
 import Button from '@/components/Button';
+import { useUser } from '@auth0/nextjs-auth0';
+import { getData } from '@/helpers';
+import EditListModal from '@/components/modals/EditListModal';
+import EditMovieRatingModal from '@/components/modals/EditMovieRatingModal';
+import MovieDetailsModal from '@/components/modals/MovieDetailsModal';
 
 function List() {
   const { id } = useParams();
-  const { modal, setModal } = useContext(ModalContext);
-  const { lists, setLists, movies, setMovies } = useContext(DataContext);
-  const [fetchingData, setFetchingData] = useState(true);
-  const [filteredMovieIds, setFilteredMovieIds] = useState([]);
+  const { user, isLoading } = useUser();
+  const timerRef = useRef();
+  const [isFetching, setIsFetching] = useState(true);
+  const [filteredMovies, setFilteredMovies] = useState([]);
+  const [filteredMoviesTitle, setFilteredMoviesTitle] = useState('');
+  const [list, setList] = useState(null);
+  const [listMovies, setListMovies] = useState([]);
+  const [showEditMovieModal, setShowEditMovieModal] = useState(false);
+  const [showEditListModal, setShowEditListModal] = useState(false);
+  const [showMovieDetailsModal, setShowMovieDetailsModal] = useState(false);
+  const [selectedMovie, setSelectedMovie] = useState(null);
 
-  const searchTimerRef = useRef();
-  const [title, setTitle] = useState('');
+  useEffect(() => {
+    async function fetchData() {
+      const { rows: userAddedLists } = await getData(
+        `/api/user-added-lists/${id}`
+      );
 
-  function handleSearch(event) {
-    const _title = event.currentTarget.value;
-    setTitle(_title);
-
-    clearTimeout(searchTimerRef.current);
-    searchTimerRef.current = setTimeout(() => {
-      if (_title.length === 0) {
-        setFilteredMovieIds(lists[id].movieIds);
-      } else {
-        const _filteredMovieIds = lists[id].movieIds.filter((movieId) =>
-          movies[movieId].title
-            .toLowerCase()
-            .includes(_title.trim().toLowerCase())
+      if (userAddedLists[0]) {
+        const { rows: userAddedMovies } = await getData(
+          `/api/user-added-list-has-movies?userAddedListId=${userAddedLists[0].id}`
         );
-        setFilteredMovieIds(_filteredMovieIds);
+
+        const _listMovies = {};
+
+        userAddedMovies.forEach((movie) => {
+          if (_listMovies[movie.movie_id]) {
+            _listMovies[movie.movie_id].users[
+              movie.user_added_movie_auth0_user_id
+            ] = {
+              user_added_movie_id: movie.user_added_movie_id,
+              user_added_movie_rating: movie.user_added_movie_rating,
+              user_added_movie_auth0_user_id:
+                movie.user_added_movie_auth0_user_id,
+            };
+          } else {
+            _listMovies[movie.movie_id] = {
+              movie_id: movie.movie_id,
+              imdb_id: movie.imdb_id,
+              tmdb_id: movie.tmdb_id,
+              poster_path: movie.poster_path,
+              title: movie.title,
+              year: movie.year,
+              users: {
+                [movie.user_added_movie_auth0_user_id]: {
+                  user_added_movie_id: movie.user_added_movie_id,
+                  user_added_movie_rating: movie.user_added_movie_rating,
+                  user_added_movie_auth0_user_id:
+                    movie.user_added_movie_auth0_user_id,
+                },
+              },
+            };
+          }
+        });
+
+        setListMovies(_listMovies);
+
+        const _filteredMovies = Object.values(_listMovies).sort((m1, m2) => {
+          if (m1.title < m2.title) {
+            return -1;
+          }
+          if (m1.title > m2.title) {
+            return 1;
+          }
+          return 0;
+        });
+
+        setFilteredMovies(_filteredMovies);
+
+        setList(userAddedLists[0]);
+      }
+
+      setIsFetching(false);
+    }
+
+    if (!isLoading && user) fetchData();
+  }, [isLoading, user]);
+
+  useEffect(() => {
+    if (!isFetching) {
+      const _filteredMovies = Object.values(listMovies).sort((m1, m2) => {
+        if (m1.title < m2.title) {
+          return -1;
+        }
+        if (m1.title > m2.title) {
+          return 1;
+        }
+        return 0;
+      });
+      setFilteredMovies(_filteredMovies);
+    }
+  }, [isFetching, listMovies]);
+
+  function handleSearchFilteredMovies(event) {
+    const _searchTitle = event.currentTarget.value;
+    setFilteredMoviesTitle(_searchTitle);
+
+    clearTimeout(timerRef.current);
+    timerRef.current = setTimeout(() => {
+      if (_searchTitle.length === 0) {
+        const _filteredMovies = Object.values(listMovies).sort((m1, m2) => {
+          if (m1.title < m2.title) {
+            return -1;
+          }
+          if (m1.title > m2.title) {
+            return 1;
+          }
+          return 0;
+        });
+        setFilteredMovies(_filteredMovies);
+      } else {
+        const _filteredMovies = Object.values(listMovies).filter((movie) =>
+          movie.title.toLowerCase().includes(_searchTitle.trim().toLowerCase())
+        );
+        setFilteredMovies(_filteredMovies);
       }
     }, 500);
   }
 
-  useEffect(() => {
-    async function fetchData() {
-      if (Object.keys(lists).length === 0 || !lists[id] || !lists[id].movies) {
-        const response = await fetch(`/api/lists/${id}`);
-        const { list, listMovies, error } = await response.json();
-
-        if (error) {
-          setFetchingData(false);
-          return console.log(error);
-        }
-
-        const _listMovies = {};
-        listMovies.forEach((movie) => {
-          _listMovies[movie.id] = movie;
-        });
-        setMovies({ ...movies, ..._listMovies });
-
-        const ids = listMovies.map((listMovie) => listMovie.id);
-        setLists({ ...lists, [id]: { ...list, movieIds: ids } });
-        setFilteredMovieIds(ids);
-      } else {
-        setFilteredMovieIds(lists[id].movieIds);
-      }
-      setFetchingData(false);
-    }
-
-    fetchData();
-  }, []);
-
-  useEffect(() => {
-    if (!fetchingData) {
-      setFilteredMovieIds(lists[id].movieIds);
-    }
-  }, [fetchingData, lists]);
-
-  if (fetchingData) {
+  if (isFetching) {
     return <Loading />;
   }
 
-  if (!fetchingData && lists && !lists[id]) {
-    return <Empty />;
+  if (!isFetching && !list) {
+    return <Message />;
   }
 
-  if (!fetchingData && lists && lists[id]) {
+  if (!isFetching && list) {
     return (
-      <div className="flex w-full flex-col gap-4">
-        <div className="flex w-full items-center gap-4">
-          <h1 className="w-full">{lists[id].name}</h1>
-          <Button
-            rounded={true}
-            handleClick={() =>
-              setModal({ action: 'EDIT_LIST', data: { list: lists[id] } })
-            }
-            color="sky"
-          >
-            <Pen />
-          </Button>
+      <>
+              {showMovieDetailsModal && (
+          <MovieDetailsModal showModal={showMovieDetailsModal} setShowModal={setShowMovieDetailsModal}             selectedMovie={selectedMovie}
+          setSelectedMovie={setSelectedMovie} />
+        )}
+
+        {showEditMovieModal && (
+          <EditMovieRatingModal
+            showModal={showEditMovieModal}
+            setShowModal={setShowEditMovieModal}
+            selectedMovie={selectedMovie}
+            setSelectedMovie={setSelectedMovie}
+            myMovies={listMovies}
+            setMyMovies={setListMovies}
+          />
+        )}
+        {showEditListModal && (
+          <EditListModal
+            showModal={showEditListModal}
+            setShowModal={setShowEditListModal}
+            list={list}
+            setList={setList}
+            myMovies={listMovies}
+            setMyMovies={setListMovies}
+          />
+        )}
+        <div className="flex w-full flex-col gap-4">
+          <div className="flex w-full items-center gap-4">
+            <h1 className="w-full">{list.name}</h1>
+            <Button
+              rounded={true}
+              handleClick={() => setShowEditListModal(true)}
+              color="sky"
+            >
+              <Pen />
+            </Button>
+          </div>
+          <input
+            type="text"
+            value={filteredMoviesTitle}
+            placeholder="Search Movies in List"
+            onInput={handleSearchFilteredMovies}
+            className="flex h-[48px] w-full rounded-full border-2 border-neutral-100 bg-neutral-100 px-4 text-black placeholder-neutral-400 transition-all duration-100 hover:border-neutral-200 focus:border-black focus:bg-white focus:ring-0 focus:outline-0"
+          />
+          <ScrollYGrid>
+            {filteredMovies.map((movie, index) => (
+              <ScrollYCard key={index} movie={listMovies[movie.movie_id]} setSelectedMovie={setSelectedMovie} setShowEditMovieModal={setShowEditMovieModal} setShowMovieDetailsModal={setShowMovieDetailsModal} />
+            ))}
+          </ScrollYGrid>
         </div>
-        <input
-          type="text"
-          value={title}
-          placeholder="Search Movies in List"
-          onInput={handleSearch}
-          className="flex h-[48px] w-full rounded-full border-2 border-neutral-100 bg-neutral-100 px-4 text-black placeholder-neutral-400 transition-all duration-100 hover:border-neutral-200 focus:border-black focus:bg-white focus:ring-0 focus:outline-0"
-        />
-        <ScrollYGrid>
-          {filteredMovieIds.map((movieId, index) => (
-            <ScrollYCard key={index} movie={movies[movieId]} />
-          ))}
-        </ScrollYGrid>
-      </div>
+      </>
     );
   }
 }

@@ -1,25 +1,36 @@
 'use client';
-import { useContext, useEffect, useState } from 'react';
-import useMovieSearch from '@/hooks/useMovieSearch';
-import Modal from '@/components/Modal';
-import { ModalContext } from '@/contexts/ModalContextProvider';
-import SearchCard from '@/components/SearchCard';
+import { useContext, useEffect, useState, useRef } from 'react';
 import Loading from '@/components/Loading';
+import Button from '@/components/Button';
+import { getData, postData } from '@/helpers';
+import SearchCard from '@/components/SearchCard';
 import { Check, X } from 'lucide-react';
 import { useUser } from '@auth0/nextjs-auth0';
-import Button from '@/components/Button';
+import useMovieSearch from '@/hooks/useMovieSearch';
+import Modal from '@/components/Modal';
 
-function AddEditListModal({ handleSubmit, show, disabled }) {
-  const { user, isLoading } = useUser();
-  const { modal, setModal } = useContext(ModalContext);
-  const [title, setTitle, page, setPage, movies, fetchingMovies] =
-    useMovieSearch();
-
+function AddListModal({ showModal, setShowModal, myLists, setMyLists }) {
+  const { user } = useUser();
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [name, setName] = useState('');
+  const [selectedList, setSelectedList] = useState(null);
   const [email, setEmail] = useState('');
   const [emailMessage, setEmailMessage] = useState(null);
-  const [name, setName] = useState('');
-  const [listUsers, setListUsers] = useState({});
-  const [listMovies, setListMovies] = useState({});
+  const [selectedUsers, setSelectedUsers] = useState({});
+  const [selectedMovies, setSelectedMovies] = useState({});
+
+  const {
+    searchTitle,
+    setSearchTitle,
+    searchPage,
+    setSearchPage,
+    searchMovies,
+    setSearchMovies,
+    isSearchingMovies,
+    setIsSearchingMovies,
+    hasMoreSearchMovies,
+    setHasMoreSearchMovies,
+  } = useMovieSearch();
 
   useEffect(() => {
     if (emailMessage) {
@@ -27,27 +38,52 @@ function AddEditListModal({ handleSubmit, show, disabled }) {
     }
   }, [email]);
 
-  useEffect(() => {
-    if (modal.data && modal.data.list) {
-      setName(modal.data.list.name);
+  async function handleAdd(name, selectedUsers, selectedMovies) {
+    setIsSubmitting(true);
+
+    const _myLists = { ...myLists };
+
+    const { rows: userAddedLists } = await postData('/api/user-added-lists', {
+      name,
+    });
+
+    _myLists[userAddedLists[0].id] = userAddedLists[0];
+
+    if (Object.keys(selectedMovies).length > 0) {
+      const { rows: movies } = await postData('/api/movies', {
+        selectedMovies: Object.values(selectedMovies),
+      });
+
+      const { rows: userAddedMovies } = await postData(
+        '/api/user-added-movies',
+        {
+          movies,
+        }
+      );
+      
+      postData('/api/user-added-list-has-movies', {
+        userAddedListId: userAddedLists[0].id,
+        userAddedMovies,
+      });
     }
-  }, [modal]);
+
+    setMyLists(_myLists);
+
+    if (Object.keys(selectedUsers).length > 0) {
+      await postData('/api/invites', {
+        userAddedListId: userAddedLists[0].id,
+        selectedUsers: Object.values(selectedUsers),
+      });
+    }
+
+    setIsSubmitting(false);
+
+    setShowModal(false);
+  }
 
   return (
-    <Modal
-      show={show}
-      handleReset={() => {
-        setName('');
-        setListUsers({});
-        setListMovies({});
-        setTitle('');
-        setPage(1);
-      }}
-      disabled={disabled}
-    >
-      <h1 className="text-center">
-        {modal.data && modal.data.list ? 'Edit List' : 'Add List'}
-      </h1>
+    <Modal setShowModal={setShowModal} disabled={isSubmitting}>
+      <h1 className="text-center">{selectedList ? 'Edit List' : 'Add List'}</h1>
       <div className="flex flex-col gap-4">
         <label>* Name</label>
         <input
@@ -63,6 +99,7 @@ function AddEditListModal({ handleSubmit, show, disabled }) {
         </label>
         <div className="flex w-full items-center gap-2">
           <input
+            autoComplete="off"
             type="text"
             value={email}
             onInput={(event) => setEmail(event.currentTarget.value)}
@@ -70,45 +107,38 @@ function AddEditListModal({ handleSubmit, show, disabled }) {
           />
           <Button
             handleClick={async () => {
-              const response = await fetch('/api/users', {
-                method: 'POST',
-                headers: {
-                  'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ email }),
-              });
+              const response = await fetch(`/api/search/users?email=${email}`);
 
               const { users, error } = await response.json();
 
-              if (error) console.log(error);
+              if (error) console.error(error);
 
               if (!users[0]) {
                 setEmailMessage(`A user with email ${email} was not found.`);
               } else if (users[0].email === user.email) {
                 setEmailMessage('You are already in this list.');
               } else {
-                const _listUsers = { ...listUsers };
-                _listUsers[email] = {
+                const _selectedUsers = { ...selectedUsers };
+                _selectedUsers[email] = {
                   user_id: users[0].user_id,
                   email: users[0].email,
                 };
-                setListUsers(_listUsers);
+                setSelectedUsers(_selectedUsers);
                 setEmail('');
               }
             }}
             disabled={email.length === 0}
             color="sky"
-            rounded={true}
           >
-            <Check />
+            Apply
           </Button>
         </div>
         {emailMessage && (
           <p className="text-xs text-rose-500">{emailMessage}</p>
         )}
-        {Object.values(listUsers).length > 0 && (
+        {Object.values(selectedUsers).length > 0 && (
           <div className="flex flex-col gap-2 rounded-xl border-2 border-dotted border-black p-2">
-            {Object.values(listUsers).map((listUser, index) => (
+            {Object.values(selectedUsers).map((listUser, index) => (
               <div
                 key={index}
                 className="flex w-full items-center gap-2 rounded-full bg-neutral-100 px-4 py-2"
@@ -116,9 +146,9 @@ function AddEditListModal({ handleSubmit, show, disabled }) {
                 <p className="w-full">{listUser.email}</p>
                 <Button
                   handleClick={() => {
-                    const _listUsers = { ...listUsers };
-                    delete _listUsers[listUser.email];
-                    setListUsers(_listUsers);
+                    const _selectedUsers = { ...selectedUsers };
+                    delete _selectedUsers[listUser.email];
+                    setSelectedUsers(_selectedUsers);
                   }}
                   color="rose"
                   rounded={true}
@@ -134,26 +164,24 @@ function AddEditListModal({ handleSubmit, show, disabled }) {
         <label>Search and Add Movies by Title</label>
         <div className="flex w-full items-center gap-2">
           <input
+            autoComplete="off"
             type="text"
-            value={title}
-            onInput={(event) => setTitle(event.currentTarget.value)}
+            value={searchTitle}
+            onInput={(event) => setSearchTitle(event.currentTarget.value)}
             className="flex h-[48px] w-full rounded-full border-2 border-neutral-100 bg-neutral-100 px-4 text-black transition-all duration-100 hover:border-neutral-200 focus:border-black focus:bg-white focus:ring-0 focus:outline-0"
           />
           <Button
-            handleClick={async () => {
-              setTitle('');
-            }}
-            disabled={title.length === 0}
+            handleClick={() => setSearchTitle('')}
+            disabled={searchTitle.length === 0}
             color="rose"
-            rounded={true}
           >
-            <X />
+            Clear
           </Button>
         </div>
 
-        {Object.values(listMovies).length > 0 && (
+        {Object.values(selectedMovies).length > 0 && (
           <div className="flex flex-col gap-2 rounded-xl border-2 border-dotted border-black p-2">
-            {Object.values(listMovies).map((movie, index) => (
+            {Object.values(selectedMovies).map((movie, index) => (
               <div
                 key={index}
                 className="flex w-full items-center gap-2 rounded-full bg-neutral-100 px-4 py-2"
@@ -161,9 +189,9 @@ function AddEditListModal({ handleSubmit, show, disabled }) {
                 <p className="w-full">{movie.title}</p>
                 <Button
                   handleClick={() => {
-                    const _listMovies = { ...listMovies };
-                    delete _listMovies[movie.imdb_id];
-                    setListMovies(_listMovies);
+                    const _selectedMovies = { ...selectedMovies };
+                    delete _selectedMovies[movie.imdb_id];
+                    setSelectedMovies(_selectedMovies);
                   }}
                   color="rose"
                   rounded={true}
@@ -174,61 +202,49 @@ function AddEditListModal({ handleSubmit, show, disabled }) {
             ))}
           </div>
         )}
-        {movies.length > 0 && (
+        {searchMovies.length > 0 && (
           <div className="flex w-full flex-col gap-2">
-            {movies.map((movie, index) => (
+            {searchMovies.map((movie, index) => (
               <SearchCard
                 key={index}
                 movie={movie}
-                disabled={listMovies[movie.imdb_id]}
+                disabled={selectedMovies[movie.imdb_id]}
                 handleSelect={() => {
-                  if (!listMovies[movie.imdb_id]) {
-                    const _listMovies = { ...listMovies };
-                    _listMovies[movie.imdb_id] = movie;
-                    setListMovies(_listMovies);
+                  if (!selectedMovies[movie.imdb_id]) {
+                    const _selectedMovies = { ...selectedMovies };
+                    _selectedMovies[movie.imdb_id] = movie;
+                    setSelectedMovies(_selectedMovies);
                   }
                 }}
               />
             ))}
           </div>
         )}
-        {fetchingMovies && <Loading />}
-
-        {!fetchingMovies && movies.length > 0 && (
-          <Button
-            handleClick={() => setPage(page + 1)}
-            disabled={fetchingMovies}
-            color="neutral"
-          >
-            Show More
-          </Button>
-        )}
+        {isSearchingMovies && <Loading />}
+        {!isSearchingMovies &&
+          searchMovies.length > 0 &&
+          hasMoreSearchMovies && (
+            <Button
+              handleClick={() => setSearchPage(searchPage + 1)}
+              color="neutral"
+            >
+              Show More
+            </Button>
+          )}
       </div>
       <div className="flex gap-4 self-end">
         <Button
-          disabled={disabled}
-          handleClick={() => {
-            setName('');
-            setListUsers({});
-            setListMovies({});
-            setTitle('');
-            setPage(1);
-            setModal({ action: '', data: null });
-          }}
+          disabled={isSubmitting}
+          handleClick={() => setShowModal(false)}
           color="neutral"
         >
           Cancel
         </Button>
         <Button
-          disabled={name.length === 0 || disabled}
-          handleClick={async () => {
-            await handleSubmit(name, listUsers, listMovies);
-            setName('');
-            setListUsers({});
-            setListMovies({});
-            setTitle('');
-            setPage(1);
-          }}
+          disabled={name.length === 0 || isSubmitting}
+          handleClick={async () =>
+            await handleAdd(name, selectedUsers, selectedMovies)
+          }
           color="sky"
         >
           Submit
@@ -238,4 +254,4 @@ function AddEditListModal({ handleSubmit, show, disabled }) {
   );
 }
 
-export default AddEditListModal;
+export default AddListModal;

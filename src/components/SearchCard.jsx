@@ -14,18 +14,22 @@ function SearchCard({ movie, disabled, handleSelect }) {
     >
       <img
         id={`img-${movie.id}`}
-        src={`https://image.tmdb.org/t/p/original/${movie.poster_path}`}
+        src={
+          movie.poster_path
+            ? `https://image.tmdb.org/t/p/original${movie.poster_path}`
+            : `https://placehold.co/200/000000/FFFFFF/svg?text=${movie.title}&font=montserrat/`
+        }
         alt={movie.title}
         className={`w-full max-w-[100px] rounded-xl ${loadingImage ? 'hidden' : 'visible'}`}
-        onError={() => {
-          const imageElement = document.getElementById(`img-${movie.id}`);
-          imageElement.onerror = null;
-          imageElement.src = `https://placehold.co/200/000000/FFFFFF/svg?text=${movie.title}&font=montserrat/`;
-        }}
+        // onError={() => {
+        //   const imageElement = document.getElementById(`img-${movie.id}`);
+        //   imageElement.onerror = null;
+        //   imageElement.src = `https://placehold.co/200/000000/FFFFFF/svg?text=${movie.title}&font=montserrat/`;
+        // }}
         onLoad={() => setLoadingImage(false)}
       />
       <div
-        className={`aspect-square w-full max-w-[100px] animate-pulse rounded-xl bg-neutral-100 ${loadingImage ? 'visible' : 'hidden'}`}
+        className={`aspect-[2/3] w-full max-w-[100px] animate-pulse rounded-xl bg-neutral-100 ${loadingImage ? 'visible' : 'hidden'}`}
       ></div>
       <div className="flex flex-col gap-2 self-center text-right">
         <h2 className={`font-bold`}>{movie.title}</h2>

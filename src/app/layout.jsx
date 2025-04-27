@@ -1,5 +1,3 @@
-import { ModalContextProvider } from '@/contexts/ModalContextProvider';
-import { DataContextProvider } from '@/contexts/DataContextProvider';
 import './globals.css';
 
 export const metadata = {
@@ -11,9 +9,7 @@ function RootLayout({ children }) {
   return (
     <html lang="en">
       <body className="mx-auto w-full max-w-[1024px] p-4">
-        <ModalContextProvider>
-          <DataContextProvider>{children}</DataContextProvider>
-        </ModalContextProvider>
+        {children}
       </body>
     </html>
   );

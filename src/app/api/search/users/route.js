@@ -1,5 +1,7 @@
-export async function POST(request) {
-  const { email } = await request.json();
+export async function GET(request) {
+  const searchParams = request.nextUrl.searchParams;
+
+  const email = searchParams.get('email');
 
   if (!email) return Response.json({ error: 'Email required.' });
 
