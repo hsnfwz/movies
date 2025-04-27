@@ -10,9 +10,11 @@ function ScrollYCard({ movie, setShowEditMovieModal, setShowMovieDetailsModal, s
   const pathname = usePathname();
   const { user } = useUser();
   const [overallRating, setOverallRating] = useState(-1);
-  const [overallRatingCount, setOverallRatingCount] = useState(0);
+  const [overallRatingCount, setOverallRatingCount] = useState(-1);
 
   useEffect(() => {
+    if (overallRating !== -1) setOverallRating(-1);
+    if (overallRatingCount !== -1) setOverallRatingCount(-1);
 
     let i = 0;
     let count = 0;
@@ -32,8 +34,8 @@ function ScrollYCard({ movie, setShowEditMovieModal, setShowMovieDetailsModal, s
     if (count > 0) {
       const average = +((sum / count).toFixed(1));
       setOverallRating(average);
-      setOverallRatingCount(count);
     }
+    setOverallRatingCount(count);
   }, [movie]);
   
   const [loadingImage, setLoadingImage] = useState(true);

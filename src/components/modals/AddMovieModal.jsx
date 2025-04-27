@@ -86,9 +86,8 @@ function AddMovieModal({ showModal, setShowModal, myMovies, setMyMovies }) {
             handleClick={() => setSearchTitle('')}
             disabled={searchTitle.length === 0}
             color="rose"
-            rounded={true}
           >
-            <X />
+            Clear
           </Button>
         </div>
         {Object.values(selectedMovies).length > 0 && (
