@@ -253,7 +253,7 @@ function EditListModal({ list, setList, showModal, setShowModal, myMovies, setMy
             </Button>
           )}
       </div>
-      <div className="flex gap-4 self-end">
+      <div className="flex gap-2 self-end">
         <Button
           disabled={isSubmitting}
           handleClick={() => setShowModal(false)}
