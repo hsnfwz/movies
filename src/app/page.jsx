@@ -8,7 +8,7 @@ function Welcome() {
   const { user, isLoading } = useUser();
 
   useEffect(() => {
-    if (!isLoading && user) console.log(user);
+    if (!isLoading && user) console.log(user.sub);
   }, [user, isLoading]);
 
   if (isLoading) {
