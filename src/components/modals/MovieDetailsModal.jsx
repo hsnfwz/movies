@@ -2,7 +2,7 @@
 import Modal from '../Modal';
 import { useUser } from '@auth0/nextjs-auth0';
 
-function MovieDetailsModal({ showModal, setShowModal, selectedMovie }) {
+function MovieDetailsModal({ listUsers, showModal, setShowModal, selectedMovie }) {
   const { user } = useUser();
 
   return (
@@ -13,10 +13,10 @@ function MovieDetailsModal({ showModal, setShowModal, selectedMovie }) {
         {Object.values(selectedMovie.users).map((value, index) => (
           <div
             key={index}
-            className={`flex justify-between gap-2 rounded-full bg-neutral-100 p-4 ${user.sub === value.user_added_movie_auth0_user_id ? 'text-amber-500' : 'text-black'}`}
+            className={`flex items-center justify-around gap-2 rounded-full bg-neutral-100 p-4 ${user.sub === value.user_added_movie_auth0_user_id ? 'text-amber-500' : 'text-black'}`}
           >
-            <p>{value.user_added_movie_auth0_user_id}</p>
-            <p className="font-bold">
+            <p>{listUsers[value.user_added_movie_auth0_user_id].username}</p>
+            <p className="font-bold text-2xl">
               {value.user_added_movie_rating
                 ? value.user_added_movie_rating
                 : '-'}

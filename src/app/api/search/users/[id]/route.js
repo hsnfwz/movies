@@ -1,9 +1,13 @@
-export async function GET(request) {
-  const searchParams = request.nextUrl.searchParams;
+const { auth0 } = require("@/lib/auth0");
 
-  const username = searchParams.get('username');
+export async function GET(request, { params }) {
+  const { user } = await auth0.getSession();
 
-  if (!username) return Response.json({ error: '[username] required.' });
+  if (!user) return Response.json({ error: 'Authentication required.' });
+
+  const { id } = await params;
+
+  if (!id) return Response.json({ error: '[id] required.' });
 
   const res = await fetch(`https://${process.env.AUTH0_DOMAIN}/oauth/token`, {
     method: 'POST',
@@ -18,12 +22,10 @@ export async function GET(request) {
     }),
   });
 
-  if (!res.ok) return Response.json({ error: '[token] failed.' });
-
   const { access_token } = await res.json();
 
   const response = await fetch(
-    `https://${process.env.AUTH0_DOMAIN}/api/v2/users?q=username:*${username}*&search_engine=v3`,
+    `https://${process.env.AUTH0_DOMAIN}/api/v2/users/${id}`,
     {
       method: 'GET',
       headers: {
@@ -32,10 +34,7 @@ export async function GET(request) {
       },
     }
   );
+  const data = await response.json();
 
-  if (!response.ok) return Response.json({ error: '[search] failed.' });
-
-  const users = await response.json();
-
-  return Response.json({ users });
+  return Response.json({ rows: [{ username: data.username }] });
 }

@@ -119,6 +119,7 @@ function ScrollYCard({
             </div>
           </div>
           <div className="flex w-full justify-end gap-2">
+          {pathname.includes('lists') && (
             <Button
               handleClick={() => {
                 setSelectedMovie(movie);
@@ -129,6 +130,7 @@ function ScrollYCard({
             >
               <Info />
             </Button>
+          )}
             <Button
               handleClick={() => {
                 setSelectedMovie(movie);
