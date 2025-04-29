@@ -38,42 +38,34 @@ async function insertUserAddedMovies(user, movies) {
     .join(', ');
 
   const query = `
-    WITH inserted AS (
-      INSERT INTO user_added_movies (auth0_user_id, movie_id, rating)
-      VALUES ${placeholders}
-      ON CONFLICT ON CONSTRAINT user_movie_id DO NOTHING
-      RETURNING *
-    )
-    SELECT 
-      movies.id as movie_id,
-      movies.title,
-      movies.year,
-      movies.poster_path,
-      movies.imdb_id,
-      movies.tmdb_id,
-      inserted.id as user_added_movie_id,
-      inserted.rating as user_added_movie_rating,
-      inserted.auth0_user_id as user_added_movie_auth0_user_id 
-    FROM movies
-    INNER JOIN inserted on movies.id=inserted.movie_id
-    UNION ALL
-    SELECT 
-      movies.id as movie_id,
-      movies.title,
-      movies.year,
-      movies.poster_path,
-      movies.imdb_id,
-      movies.tmdb_id,
-      user_added_movies.id as user_added_movie_id,
-      user_added_movies.rating as user_added_movie_rating,
-      user_added_movies.auth0_user_id as user_added_movie_auth0_user_id
-    FROM movies
-    INNER JOIN user_added_movies on movies.id=user_added_movies.movie_id
-    WHERE movies.id=$2
+    INSERT INTO user_added_movies (auth0_user_id, movie_id, rating)
+    VALUES ${placeholders}
+    ON CONFLICT ON CONSTRAINT user_movie_id DO NOTHING
+    RETURNING *
   `;
 
-  const { rows } = await pool.query(query, values);
-  return { rows };
+  await pool.query(query, values);
+
+  const movieIds = movies.map((movie) => movie.id);
+
+  const values2 = [movieIds, user.sub];
+  const query2 = `
+      SELECT
+        movies.id as movie_id,
+        movies.title,
+        movies.year,
+        movies.poster_path,
+        movies.imdb_id,
+        movies.tmdb_id,
+        user_added_movies.id as user_added_movie_id,
+        user_added_movies.rating as user_added_movie_rating,
+        user_added_movies.auth0_user_id as user_added_movie_auth0_user_id
+      FROM user_added_movies
+      INNER JOIN movies ON movies.id=user_added_movies.movie_id
+      WHERE movie_id = ANY($1) AND auth0_user_id=$2
+  `;
+
+  return await pool.query(query2, values2);
 }
 
 export async function POST(request) {

@@ -77,6 +77,8 @@ function EditListModal({
         }
       );
 
+      console.log(userAddedMovies);
+
       if (myMovies) {
         const _myMovies = { ...myMovies };
         userAddedMovies.forEach((movie) => {
