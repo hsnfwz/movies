@@ -124,7 +124,7 @@ function AddListModal({ showModal, setShowModal, myLists, setMyLists }) {
                   setSelectedUsers(_selectedUsers);
                 }}
                 color="sky"
-                className="self-start gap-2"
+                className="gap-2 self-start"
               >
                 <X />
                 <span>{selectedUser.username}</span>
@@ -184,7 +184,7 @@ function AddListModal({ showModal, setShowModal, myLists, setMyLists }) {
                   setSelectedMovies(_selectedMovies);
                 }}
                 color="sky"
-                className="self-start gap-2"
+                className="gap-2 self-start"
               >
                 <X />
                 <span>{movie.title}</span>

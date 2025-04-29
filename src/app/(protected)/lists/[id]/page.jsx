@@ -73,14 +73,18 @@ function List() {
 
         setListMovies(_listMovies);
 
-        const { rows: userAddedListHasUsers } = await getData(`/api/user-added-list-has-users?userAddedListId=${id}`);
+        const { rows: userAddedListHasUsers } = await getData(
+          `/api/user-added-list-has-users?userAddedListId=${id}`
+        );
 
         let i = 0;
         const _listUsers = {};
         while (i < userAddedListHasUsers.length) {
           const userAddedListHasUser = userAddedListHasUsers[i];
 
-          const data = await getData(`/api/search/users/${userAddedListHasUser.auth0_user_id}`);
+          const data = await getData(
+            `/api/search/users/${userAddedListHasUser.auth0_user_id}`
+          );
 
           _listUsers[userAddedListHasUser.auth0_user_id] = data.rows[0];
 

@@ -104,7 +104,7 @@ function Modal({ children, disabled, setShowModal }) {
         >
           <X />
         </Button>
-        <div className="mx-auto flex h-full w-full max-w-[1024px] flex-col gap-8">
+        <div className="mx-auto flex h-full w-full max-w-[768px] flex-col gap-8">
           {children}
         </div>
       </div>

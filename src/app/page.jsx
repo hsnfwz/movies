@@ -19,7 +19,10 @@ function Welcome() {
     return (
       <div className="flex h-[calc(100vh-32px)] w-full flex-col items-center justify-center gap-8 p-4 text-center">
         <h1>FilmFest</h1>
-        <p>Track and rate movies and create collaborative lists with friends and family!</p>
+        <p>
+          Track and rate movies and create collaborative lists with friends and
+          family!
+        </p>
         {user && (
           <div className="flex gap-2">
             <Link

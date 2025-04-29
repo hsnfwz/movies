@@ -19,7 +19,8 @@ function EditMovieRatingModal({
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const [rating, setRating] = useState(
-    selectedMovie.users[user.sub] && selectedMovie.users[user.sub].user_added_movie_rating
+    selectedMovie.users[user.sub] &&
+      selectedMovie.users[user.sub].user_added_movie_rating
       ? selectedMovie.users[user.sub].user_added_movie_rating
       : 10
   );
@@ -75,7 +76,9 @@ function EditMovieRatingModal({
       disabled={isSubmitting}
     >
       <h1 className="text-center">{selectedMovie.title}</h1>
-      <h3 className="font-bold text-amber-500 text-2xl w-[64px] h-[64px] text-center align-middle rounded-full border-2 border-amber-500 self-center aspect-square flex items-center justify-center">{rating}</h3>
+      <h3 className="flex aspect-square h-[64px] w-[64px] items-center justify-center self-center rounded-full border-2 border-amber-500 text-center align-middle text-2xl font-bold text-amber-500">
+        {rating}
+      </h3>
       <Slider
         min={0}
         max={10}

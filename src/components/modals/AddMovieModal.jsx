@@ -102,7 +102,7 @@ function AddMovieModal({ showModal, setShowModal, myMovies, setMyMovies }) {
                   setSelectedMovies(_selectedMovies);
                 }}
                 color="sky"
-                className="self-start gap-2"
+                className="gap-2 self-start"
               >
                 <X />
                 <span>{movie.title}</span>

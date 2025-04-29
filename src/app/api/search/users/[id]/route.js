@@ -1,4 +1,4 @@
-const { auth0 } = require("@/lib/auth0");
+const { auth0 } = require('@/lib/auth0');
 
 export async function GET(request, { params }) {
   const { user } = await auth0.getSession();
