@@ -1,8 +1,8 @@
 'use client';
 import { useEffect, useState, useRef, useContext } from 'react';
 import { Plus } from 'lucide-react';
-import ScrollYCard from '@/components/ScrollYCard';
-import ScrollYGrid from '@/components/ScrollYGrid';
+import MovieCard from '@/components/MovieCard';
+import MovieCardGrid from '@/components/MovieCardGrid';
 import Loading from '@/components/Loading';
 import Button from '@/components/Button';
 import { getData, postData, putData } from '@/helpers';
@@ -176,9 +176,9 @@ function Movies() {
                 onInput={handleSearchFilteredMovies}
                 className="flex h-[48px] w-full rounded-full border-2 border-neutral-100 bg-neutral-100 px-4 text-black placeholder-neutral-400 transition-all duration-100 hover:border-neutral-200 focus:border-black focus:bg-white focus:ring-0 focus:outline-0"
               />
-              <ScrollYGrid>
+              <MovieCardGrid>
                 {filteredMovies.map((movie, index) => (
-                  <ScrollYCard
+                  <MovieCard
                     key={index}
                     movie={movie}
                     setShowEditMovieModal={setShowEditMovieModal}
@@ -186,7 +186,7 @@ function Movies() {
                     setSelectedMovie={setSelectedMovie}
                   />
                 ))}
-              </ScrollYGrid>
+              </MovieCardGrid>
             </>
           )}
         </div>

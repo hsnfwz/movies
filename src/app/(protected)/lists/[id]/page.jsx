@@ -2,8 +2,8 @@
 import { useEffect, useState, useRef, useContext } from 'react';
 import { useParams } from 'next/navigation';
 import { Pen } from 'lucide-react';
-import ScrollYGrid from '@/components/ScrollYGrid';
-import ScrollYCard from '@/components/ScrollYCard';
+import MovieCardGrid from '@/components/MovieCardGrid';
+import MovieCard from '@/components/MovieCard';
 import Loading from '@/components/Loading';
 import Message from '@/components/Message';
 import Button from '@/components/Button';
@@ -210,9 +210,9 @@ function List() {
             onInput={handleSearchFilteredMovies}
             className="flex h-[48px] w-full rounded-full border-2 border-neutral-100 bg-neutral-100 px-4 text-black placeholder-neutral-400 transition-all duration-100 hover:border-neutral-200 focus:border-black focus:bg-white focus:ring-0 focus:outline-0"
           />
-          <ScrollYGrid>
+          <MovieCardGrid>
             {filteredMovies.map((movie, index) => (
-              <ScrollYCard
+              <MovieCard
                 key={index}
                 movie={listMovies[movie.movie_id]}
                 setSelectedMovie={setSelectedMovie}
@@ -220,7 +220,7 @@ function List() {
                 setShowMovieDetailsModal={setShowMovieDetailsModal}
               />
             ))}
-          </ScrollYGrid>
+          </MovieCardGrid>
         </div>
       </>
     );

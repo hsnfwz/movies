@@ -6,7 +6,7 @@ import Button from '@/components/Button';
 import { useUser } from '@auth0/nextjs-auth0';
 import { usePathname } from 'next/navigation';
 
-function ScrollYCard({
+function MovieCard({
   movie,
   setShowEditMovieModal,
   setShowMovieDetailsModal,
@@ -72,23 +72,21 @@ function ScrollYCard({
       {!loadingImage && (
         <>
           <div className="flex flex-col gap-4 rounded-xl bg-neutral-100 p-4">
-            <div className="flex flex-col gap-2">
-              <h2 className="font-bold">{movie.title}</h2>
-              <p>{movie.year}</p>
+              <h2 className="font-bold">{movie.title} {movie.year && <span className="font-normal">({movie.year})</span>}</h2>
+              {/* <p>{movie.year}</p> */}
               {movie.imdb_id && (
                 <div className="flex flex-wrap gap-2">
                   <Link
                     onMouseDown={(event) => event.preventDefault()}
-                    className="inline self-start underline hover:text-sky-500 focus:text-sky-500 focus:ring-0 focus:outline-0"
+                    className="inline self-start bg-sky-500 text-white focus:ring-0 focus:outline-0 px-4 py-2 rounded-full"
                     href={`https://www.imdb.com/title/${movie.imdb_id}`}
                     target="_blank"
                   >
                     IMDb
                   </Link>
-                  &#183;
                   <Link
                     onMouseDown={(event) => event.preventDefault()}
-                    className="inline self-start underline hover:text-sky-500 focus:text-sky-500 focus:ring-0 focus:outline-0"
+                    className="inline self-start bg-sky-500 text-white focus:ring-0 focus:outline-0 px-4 py-2 rounded-full"
                     href={`https://letterboxd.com/imdb/${movie.imdb_id}`}
                     target="_blank"
                   >
@@ -96,11 +94,10 @@ function ScrollYCard({
                   </Link>
                 </div>
               )}
-            </div>
 
-            <div className="flex w-full flex-col gap-4 md:flex-row">
+            <div className="flex w-full flex-col gap-4 md:flex-row bg-white p-4 rounded-xl text-center justify-around">
               <div className="flex flex-col gap-2 text-amber-500">
-                <p className="text-2xl font-bold">
+                <p className="font-bold text-amber-500 text-2xl w-[64px] h-[64px] text-center align-middle rounded-full border-2 border-amber-500 self-center aspect-square flex items-center justify-center">
                   {movie.users[user.sub] &&
                   movie.users[user.sub].user_added_movie_rating
                     ? movie.users[user.sub].user_added_movie_rating
@@ -110,7 +107,7 @@ function ScrollYCard({
               </div>
               {pathname.includes('lists') && (
                 <div className="flex flex-col gap-2">
-                  <p className="text-2xl font-bold">
+                  <p className="font-bold text-2xl w-[64px] h-[64px] text-center align-middle rounded-full border-2 border-black self-center aspect-square flex items-center justify-center">
                     {overallRating !== -1 ? overallRating : '-'}
                   </p>
                   <p>Overall ({overallRatingCount})</p>
@@ -161,4 +158,4 @@ function ScrollYCard({
   );
 }
 
-export default ScrollYCard;
+export default MovieCard;
