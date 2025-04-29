@@ -11,7 +11,7 @@ async function send(pool, userAddedListId, sender, receiver) {
 
   if (usersRows[0]) return;
 
-  const invitesValues = [userAddedListId, sender.sub, receiver.user_id];
+  const invitesValues = [userAddedListId, sender.user_id, receiver.user_id];
   const invitesSql =
     'insert into invites (user_added_list_id, sender_auth0_user_id, receiver_auth0_user_id) values ($1, $2, $3) returning *';
   const { rows: invitesRows } = await pool.query(invitesSql, invitesValues);
