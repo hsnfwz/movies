@@ -36,5 +36,7 @@ export async function GET(request, { params }) {
   );
   const data = await response.json();
 
-  return Response.json({ rows: [{ username: data.username }] });
+  return Response.json({
+    rows: [{ username: data.username, picture: data.picture }],
+  });
 }

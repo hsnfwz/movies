@@ -2,14 +2,9 @@
 import { useUser } from '@auth0/nextjs-auth0';
 import Link from 'next/link';
 import Loading from '@/components/Loading';
-import { useEffect } from 'react';
 
 function Welcome() {
   const { user, isLoading } = useUser();
-
-  useEffect(() => {
-    if (!isLoading && user) console.log(user.sub);
-  }, [user, isLoading]);
 
   if (isLoading) {
     return <Loading />;
