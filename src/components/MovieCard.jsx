@@ -1,6 +1,6 @@
 'use client';
 import { useState } from 'react';
-import { Info, Star } from 'lucide-react';
+import { Ellipsis, Star } from 'lucide-react';
 import Button from '@/components/Button';
 import { useUser } from '@auth0/nextjs-auth0';
 
@@ -47,7 +47,7 @@ function MovieCard({
           color="neutral"
           rounded={true}
         >
-          <Info />
+          <Ellipsis />
         </Button>
         <Button
           handleClick={() => {
