@@ -197,16 +197,38 @@ function List() {
           />
         )}
         <div className="flex w-full flex-col gap-4">
-          <div className="flex w-full items-center gap-4">
-            <h1 className="w-full">{list.name}</h1>
-            <Button
-              rounded={true}
-              handleClick={() => setShowEditListModal(true)}
-              color="sky"
-            >
-              <Pen />
-            </Button>
-          </div>
+
+
+        {Object.keys(listMovies).length === 0 && (
+            <Message>
+              <h1>Whoa! Looks like you do not have any movies in this list &#128561;</h1>
+              <p>Let's get you started by adding your first movie to this list!</p>
+              <Button
+                handleClick={() => setShowEditListModal(true)}
+                rounded={true}
+                color="sky"
+              >
+                <Pen />
+              </Button>
+            </Message>
+          )}
+          {Object.keys(listMovies).length > 0 && (
+            <div className="flex w-full items-center justify-between gap-4">
+              <h1>
+                {list.name}{' '}
+                <span className="font-montserrat font-normal">
+                  ({Object.keys(listMovies).length})
+                </span>
+              </h1>
+              <Button
+                handleClick={() => setShowEditListModal(true)}
+                rounded={true}
+                color="sky"
+              >
+                <Pen />
+              </Button>
+            </div>
+          )}
           <input
             type="text"
             value={filteredMoviesTitle}

@@ -12,8 +12,32 @@ export async function GET(request) {
   if (!userAddedListId)
     return Response.json({ error: '[userAddedListId] required.' });
 
-  const moviesValues = [userAddedListId];
-  const moviesQuery = `
+  const listMoviesValues = [userAddedListId];
+  const listMoviesQuery = `
+    SELECT
+      movie_id
+    FROM user_added_list_has_movies
+    WHERE user_added_list_has_movies.user_added_list_id=$1
+  `;
+
+  const { rows: listMoviesRows } = await pool.query(listMoviesQuery, listMoviesValues);
+
+  const listMovieIds = listMoviesRows.map(row => row.movie_id);
+
+  const listUsersValues = [userAddedListId];
+  const listUsersQuery = `
+    SELECT
+      auth0_user_id
+    FROM user_added_list_has_users
+    WHERE user_added_list_id=$1
+  `;
+
+  const { rows: listUsersRows } = await pool.query(listUsersQuery, listUsersValues);
+
+  const listUserIds = listUsersRows.map(row => row.auth0_user_id);
+
+  const userAddedMoviesValues = [listMovieIds, listUserIds];
+  const userAddedMoviesQuery = `
     SELECT
       movies.id as movie_id,
       movies.title,
@@ -26,13 +50,12 @@ export async function GET(request) {
       user_added_movies.auth0_user_id as user_added_movie_auth0_user_id
     FROM user_added_movies
     INNER JOIN movies ON movies.id=user_added_movies.movie_id
-    INNER JOIN user_added_list_has_movies ON movies.id=user_added_list_has_movies.movie_id
-    WHERE user_added_list_has_movies.user_added_list_id=$1
+    WHERE movie_id = ANY($1) AND auth0_user_id = ANY($2)
   `;
 
-  const { rows } = await pool.query(moviesQuery, moviesValues);
+  const { rows: userAddedMovieRows } = await pool.query(userAddedMoviesQuery, userAddedMoviesValues);
 
-  return Response.json({ rows });
+  return Response.json({ rows: userAddedMovieRows });
 }
 
 async function insertUserAddedListHasMovies(userAddedListId, userAddedMovies) {

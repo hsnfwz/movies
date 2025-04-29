@@ -6,6 +6,7 @@ import Loading from '@/components/Loading';
 import Button from '@/components/Button';
 import { getData, postData } from '@/helpers';
 import AddListModal from '@/components/modals/AddListModal';
+import Message from '@/components/Message';
 
 function Page() {
   const [myLists, setMyLists] = useState({});
@@ -99,23 +100,35 @@ function Page() {
           />
         )}
         <div className="flex w-full flex-col gap-4">
-          <div className="flex w-full items-center gap-4">
-            <h1 className="w-full">
-              {Object.keys(myLists).length === 0
-                ? 'You do not have any lists yet'
-                : 'My Lists'}
-            </h1>
-            <Button
-              handleClick={() => setShowModal(true)}
-              rounded={true}
-              color="sky"
-            >
-              <Plus />
-            </Button>
-          </div>
-
           {Object.keys(myLists).length === 0 && (
-            <p>Let's get you started by adding your first list!</p>
+            <Message>
+              <h1>Whoa! Looks like you do not have any lists &#128561;</h1>
+              <p>Let's get you started by adding your first list!</p>
+              <Button
+                handleClick={() => setShowModal(true)}
+                rounded={true}
+                color="sky"
+              >
+                <Plus />
+              </Button>
+            </Message>
+          )}
+          {Object.keys(myLists).length > 0 && (
+            <div className="flex w-full items-center justify-between gap-4">
+              <h1>
+                Lists{' '}
+                <span className="font-montserrat font-normal">
+                  ({Object.keys(myLists).length})
+                </span>
+              </h1>
+              <Button
+                handleClick={() => setShowModal(true)}
+                rounded={true}
+                color="sky"
+              >
+                <Plus />
+              </Button>
+            </div>
           )}
           {Object.keys(myLists).length > 0 && (
             <>

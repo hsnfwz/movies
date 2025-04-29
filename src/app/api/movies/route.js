@@ -17,19 +17,19 @@ async function insertMovies(selectedMovies) {
     })
     .join(', ');
 
-    const query = `
+  const query = `
       INSERT INTO movies (title, year, poster_path, imdb_id, tmdb_id)
       VALUES ${placeholders}
       ON CONFLICT (tmdb_id) DO NOTHING
       RETURNING *
     `;
 
-    await pool.query(query, values);
+  await pool.query(query, values);
 
-    const tmdbIds = selectedMovies.map(selectedMovie => selectedMovie.tmdb_id);
+  const tmdbIds = selectedMovies.map((selectedMovie) => selectedMovie.tmdb_id);
 
-    const values2 = [tmdbIds];
-    const query2 = `
+  const values2 = [tmdbIds];
+  const query2 = `
       SELECT * FROM movies WHERE tmdb_id = ANY($1)
   `;
 

@@ -97,13 +97,13 @@ function AddListModal({ showModal, setShowModal, myLists, setMyLists }) {
       </div>
       <div className="flex flex-col gap-2">
         <label className="text-xs">Search and Add Users By Username</label>
-          <input
-            autoComplete="off"
-            type="text"
-            value={searchUsername}
-            onInput={(event) => setSearchUsername(event.currentTarget.value)}
-            className={`flex h-[48px] w-full rounded-full border-2 border-neutral-100 bg-neutral-100 px-4 text-black transition-all duration-100 hover:border-neutral-200 focus:border-black focus:bg-white focus:ring-0 focus:outline-0`}
-          />
+        <input
+          autoComplete="off"
+          type="text"
+          value={searchUsername}
+          onInput={(event) => setSearchUsername(event.currentTarget.value)}
+          className={`flex h-[48px] w-full rounded-full border-2 border-neutral-100 bg-neutral-100 px-4 text-black transition-all duration-100 hover:border-neutral-200 focus:border-black focus:bg-white focus:ring-0 focus:outline-0`}
+        />
         {Object.values(selectedUsers).length > 0 && (
           <div className="flex flex-wrap gap-2">
             {Object.values(selectedUsers).map((selectedUser, index) => (
@@ -148,13 +148,13 @@ function AddListModal({ showModal, setShowModal, myLists, setMyLists }) {
       </div>
       <div className="flex flex-col gap-2">
         <label className="text-xs">Search and Add Movies by Title</label>
-          <input
-            autoComplete="off"
-            type="text"
-            value={searchTitle}
-            onInput={(event) => setSearchTitle(event.currentTarget.value)}
-            className="flex h-[48px] w-full rounded-full border-2 border-neutral-100 bg-neutral-100 px-4 text-black transition-all duration-100 hover:border-neutral-200 focus:border-black focus:bg-white focus:ring-0 focus:outline-0"
-          />
+        <input
+          autoComplete="off"
+          type="text"
+          value={searchTitle}
+          onInput={(event) => setSearchTitle(event.currentTarget.value)}
+          className="flex h-[48px] w-full rounded-full border-2 border-neutral-100 bg-neutral-100 px-4 text-black transition-all duration-100 hover:border-neutral-200 focus:border-black focus:bg-white focus:ring-0 focus:outline-0"
+        />
         {Object.values(selectedMovies).length > 0 && (
           <div className="flex flex-wrap gap-2">
             {Object.values(selectedMovies).map((movie, index) => (

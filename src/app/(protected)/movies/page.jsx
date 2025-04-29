@@ -9,6 +9,7 @@ import { getData, postData, putData } from '@/helpers';
 import AddMovieModal from '@/components/modals/AddMovieModal';
 import EditMovieRatingModal from '@/components/modals/EditMovieRatingModal';
 import MovieDetailsModal from '@/components/modals/MovieDetailsModal';
+import Message from '@/components/Message';
 
 function Movies() {
   const [myMovies, setMyMovies] = useState({});
@@ -150,22 +151,35 @@ function Movies() {
           />
         )}
         <div className="flex w-full flex-col gap-4">
-          <div className="flex w-full items-center gap-4">
-            <h1 className="w-full">
-              {Object.keys(myMovies).length === 0
-                ? 'You do not have any movies yet'
-                : 'My Movies'}
-            </h1>
-            <Button
-              handleClick={() => setShowAddMovieModal(true)}
-              rounded={true}
-              color="sky"
-            >
-              <Plus />
-            </Button>
-          </div>
           {Object.keys(myMovies).length === 0 && (
-            <p>Let's get you started by adding your first movie!</p>
+            <Message>
+              <h1>Whoa! Looks like you do not have any movies &#128561;</h1>
+              <p>Let's get you started by adding your first movie!</p>
+              <Button
+                handleClick={() => setShowAddMovieModal(true)}
+                rounded={true}
+                color="sky"
+              >
+                <Plus />
+              </Button>
+            </Message>
+          )}
+          {Object.keys(myMovies).length > 0 && (
+            <div className="flex w-full items-center justify-between gap-4">
+              <h1>
+                Movies{' '}
+                <span className="font-montserrat font-normal">
+                  ({Object.keys(myMovies).length})
+                </span>
+              </h1>
+              <Button
+                handleClick={() => setShowAddMovieModal(true)}
+                rounded={true}
+                color="sky"
+              >
+                <Plus />
+              </Button>
+            </div>
           )}
           {Object.keys(myMovies).length > 0 && (
             <>
