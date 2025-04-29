@@ -10,27 +10,30 @@ async function insertMovies(selectedMovies) {
         selectedMovie.title,
         selectedMovie.year,
         selectedMovie.poster_path,
-        selectedMovie.tmdb_id,
-        selectedMovie.imdb_id
+        selectedMovie.imdb_id,
+        selectedMovie.tmdb_id
       );
       return `($${index + 1}, $${index + 2}, $${index + 3}, $${index + 4}, $${index + 5})`;
     })
     .join(', ');
 
-  const query = `
-    WITH inserted AS (
-      INSERT INTO movies (title, year, poster_path, tmdb_id, imdb_id)
+    const query = `
+      INSERT INTO movies (title, year, poster_path, imdb_id, tmdb_id)
       VALUES ${placeholders}
-      ON CONFLICT (imdb_id) DO NOTHING
+      ON CONFLICT (tmdb_id) DO NOTHING
       RETURNING *
-    )
-    SELECT * FROM inserted
-    UNION ALL
-    SELECT * FROM movies
-    WHERE imdb_id=$5
+    `;
+
+    await pool.query(query, values);
+
+    const tmdbIds = selectedMovies.map(selectedMovie => selectedMovie.tmdb_id);
+
+    const values2 = [tmdbIds];
+    const query2 = `
+      SELECT * FROM movies WHERE tmdb_id = ANY($1)
   `;
 
-  return await pool.query(query, values);
+  return await pool.query(query2, values2);
 }
 
 export async function POST(request) {
