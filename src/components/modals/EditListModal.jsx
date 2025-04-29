@@ -169,7 +169,7 @@ function EditListModal({
             ))}
           </div>
         )}
-        {searchUsers.length > 0 && (
+        {searchUsers && searchUsers.length > 0 && (
           <div className="flex w-full flex-col gap-2">
             {searchUsers.map((searchUser, index) => (
               <SearchCardUser
