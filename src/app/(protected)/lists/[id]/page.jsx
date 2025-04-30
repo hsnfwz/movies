@@ -197,12 +197,15 @@ function List() {
           />
         )}
         <div className="flex w-full flex-col gap-4">
-
-
-        {Object.keys(listMovies).length === 0 && (
+          {Object.keys(listMovies).length === 0 && (
             <Message>
-              <h1>Whoa! Looks like you do not have any movies in this list &#128561;</h1>
-              <p>Let's get you started by adding your first movie to this list!</p>
+              <h1>
+                Whoa! Looks like you do not have any movies in this list
+                &#128561;
+              </h1>
+              <p>
+                Let's get you started by adding your first movie to this list!
+              </p>
               <Button
                 handleClick={() => setShowEditListModal(true)}
                 rounded={true}

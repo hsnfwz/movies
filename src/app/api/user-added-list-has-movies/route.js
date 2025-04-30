@@ -20,9 +20,12 @@ export async function GET(request) {
     WHERE user_added_list_has_movies.user_added_list_id=$1
   `;
 
-  const { rows: listMoviesRows } = await pool.query(listMoviesQuery, listMoviesValues);
+  const { rows: listMoviesRows } = await pool.query(
+    listMoviesQuery,
+    listMoviesValues
+  );
 
-  const listMovieIds = listMoviesRows.map(row => row.movie_id);
+  const listMovieIds = listMoviesRows.map((row) => row.movie_id);
 
   const listUsersValues = [userAddedListId];
   const listUsersQuery = `
@@ -32,9 +35,12 @@ export async function GET(request) {
     WHERE user_added_list_id=$1
   `;
 
-  const { rows: listUsersRows } = await pool.query(listUsersQuery, listUsersValues);
+  const { rows: listUsersRows } = await pool.query(
+    listUsersQuery,
+    listUsersValues
+  );
 
-  const listUserIds = listUsersRows.map(row => row.auth0_user_id);
+  const listUserIds = listUsersRows.map((row) => row.auth0_user_id);
 
   const userAddedMoviesValues = [listMovieIds, listUserIds];
   const userAddedMoviesQuery = `
@@ -53,7 +59,10 @@ export async function GET(request) {
     WHERE movie_id = ANY($1) AND auth0_user_id = ANY($2)
   `;
 
-  const { rows: userAddedMovieRows } = await pool.query(userAddedMoviesQuery, userAddedMoviesValues);
+  const { rows: userAddedMovieRows } = await pool.query(
+    userAddedMoviesQuery,
+    userAddedMoviesValues
+  );
 
   return Response.json({ rows: userAddedMovieRows });
 }

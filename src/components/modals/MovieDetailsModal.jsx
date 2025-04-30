@@ -78,7 +78,7 @@ function MovieDetailsModal({
             className={`aspect-[2/3] w-full animate-pulse rounded-xl bg-neutral-100 ${loadingImage ? 'visible' : 'hidden'}`}
           ></div>
         </div>
-        <div className="flex w-full flex-col gap-4">
+        <div className="flex w-full flex-col gap-8">
           {selectedMovie.imdb_id && (
             <div className="flex flex-wrap gap-2">
               <Link
@@ -99,6 +99,7 @@ function MovieDetailsModal({
               </Link>
             </div>
           )}
+          <div className="flex flex-col gap-4">
           <div className="flex items-center gap-2 text-amber-500">
             <p className="flex aspect-square h-[64px] w-[64px] items-center justify-center rounded-full border-2 border-amber-500 text-center align-middle text-2xl font-bold text-amber-500">
               {selectedMovie.users[user.sub] &&
@@ -108,7 +109,8 @@ function MovieDetailsModal({
             </p>
             <p>My Rating</p>
           </div>
-          {pathname.includes('lists') && Object.values(selectedMovie.users).length > 1 && (
+          {pathname.includes('lists') &&
+          Object.values(selectedMovie.users).length > 1 && (
             <div className="flex items-center gap-2">
               <p className="flex aspect-square h-[64px] w-[64px] items-center justify-center rounded-full border-2 border-black text-center align-middle text-2xl font-bold">
                 {overallRating !== -1 ? overallRating : '-'}
@@ -116,40 +118,49 @@ function MovieDetailsModal({
               <p>Overall ({overallRatingCount})</p>
             </div>
           )}
+          </div>
+
         </div>
       </div>
 
       {listUsers && (
         <div className="flex w-full flex-col divide-y-2 divide-neutral-100">
-          {Object.values(selectedMovie.users).map((selectedMovieUser, index) => (
-            <div
-              key={index}
-              className={`flex items-center gap-4 bg-white p-4 ${user.sub === selectedMovieUser.user_added_movie_auth0_user_id ? 'text-amber-500' : 'text-black'}`}
-            >
-              <img
-                src={listUsers[selectedMovieUser.user_added_movie_auth0_user_id].picture}
-                alt=""
-                className="inline aspect-square w-[32px] rounded-full"
-              />
-              <p className="text-center align-middle">
-                <span className="font-bold">
-                  {
-                    listUsers[selectedMovieUser.user_added_movie_auth0_user_id].username
-                  }{' '}
-                </span>
-                <span className="text-base font-normal">
-                  {selectedMovieUser.user_added_movie_rating
-                    ? 'rated this movie '
-                    : 'did not rate this movie '}
-                </span>{' '}
-                <span className="font-bold">
-                  {selectedMovieUser.user_added_movie_rating
-                    ? selectedMovieUser.user_added_movie_rating
-                    : '-'}
-                </span>
-              </p>
-            </div>
-          ))}
+          {Object.values(selectedMovie.users).map(
+            (selectedMovieUser, index) => (
+              <div
+                key={index}
+                className={`flex items-center gap-4 bg-white p-4 ${user.sub === selectedMovieUser.user_added_movie_auth0_user_id ? 'text-amber-500' : 'text-black'}`}
+              >
+                <img
+                  src={
+                    listUsers[selectedMovieUser.user_added_movie_auth0_user_id]
+                      .picture
+                  }
+                  alt=""
+                  className="inline aspect-square w-[32px] rounded-full"
+                />
+                <p className="text-center align-middle">
+                  <span className="font-bold">
+                    {
+                      listUsers[
+                        selectedMovieUser.user_added_movie_auth0_user_id
+                      ].username
+                    }{' '}
+                  </span>
+                  <span className="text-base font-normal">
+                    {selectedMovieUser.user_added_movie_rating
+                      ? 'rated this movie '
+                      : 'did not rate this movie '}
+                  </span>{' '}
+                  <span className="font-bold">
+                    {selectedMovieUser.user_added_movie_rating
+                      ? selectedMovieUser.user_added_movie_rating
+                      : '-'}
+                  </span>
+                </p>
+              </div>
+            )
+          )}
         </div>
       )}
     </Modal>
